@@ -1,5 +1,6 @@
 import { A_Edge } from "./A_Edge";
 import { AnimationAction } from "three";
+import { A_Conditions } from "./types";
 
 export abstract class A_Vertex {
 	public edges: Map<number, A_Edge>;
@@ -25,7 +26,8 @@ export abstract class A_Vertex {
 	}
 	public update(
 		values: Record<string, any>,
-
+		// @ts-ignore
+		conditions: A_Conditions,
 		weight: number
 	) {
 		this.anim_setEffectiveWeight((this.weight = weight));
@@ -40,5 +42,4 @@ export abstract class A_Vertex {
 	}
 
 	protected abstract anim_setEffectiveWeight(weight: number): void;
-	public abstract getAction(): AnimationAction;
 }

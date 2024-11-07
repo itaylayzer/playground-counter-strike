@@ -5,6 +5,7 @@ import RAPIER from "@dimforge/rapier3d-compat";
 import { RapierDebugRenderer } from "./RapierDebugRenderer";
 import { CameraController } from "../controllers/CameraController";
 import { AnimationUtils } from "../lib/animgraph/AnimationUtils";
+import { BoneUtils } from "../lib/animgraph/BoneUtils";
 
 function setupScene() {
 	Global.container = document.querySelector("div.gameContainer")!;
@@ -35,7 +36,7 @@ function setupPhysicsWorld() {
 
 function setupControllers() {
 	Global.camera = new THREE.PerspectiveCamera(
-		90 ,
+		90,
 		Global.container.clientWidth / Global.container.clientHeight,
 		0.001,
 		10000
@@ -45,6 +46,33 @@ function setupControllers() {
 		Global.camera,
 		Global.renderer.domElement
 	);
+
+	const LOCKED_KEYS = [
+		"MetaLeft",
+		"MetaRight",
+		"Tab",
+		"KeyN",
+		"KeyT",
+		"Escape",
+		"KeyS",
+		"KeyW",
+	];
+
+	if (window.self === window.top) {
+		if (!("keyboard" in navigator)) {
+			alert("Your browser does not support the Keyboard Lock API.");
+		}
+	}
+
+	Global.lockController.addEventListener("lock", function () {
+		// @ts-ignore
+		navigator.keyboard.lock(LOCKED_KEYS);
+	});
+
+	Global.lockController.addEventListener("unlock", function () {
+		// @ts-ignore
+		navigator.keyboard.unlock(LOCKED_KEYS);
+	});
 }
 
 function setupWindowEvents() {
@@ -108,18 +136,44 @@ function setupAssets() {
 	}
 
 	// -------- setup animations
-	AnimationUtils.resetHips(Global.assets.fbx.anim_crouch_idle.animations[0]);
-	AnimationUtils.resetHips(Global.assets.fbx.anim_crouch_walk.animations[0]);
-	AnimationUtils.resetHips(Global.assets.fbx.anim_jump_start.animations[0]);
-	AnimationUtils.resetHips(Global.assets.fbx.anim_jump_loop.animations[0]);
-	AnimationUtils.resetHips(Global.assets.fbx.anim_jump_end.animations[0]);
-	AnimationUtils.resetHips(Global.assets.fbx.walk.animations[0]);
-	AnimationUtils.resetHips(Global.assets.fbx.idle.animations[0]);
+
+	const animationList = [
+		[
+			Global.assets.fbx.anim_crouch_idle.animations[0],
+			Global.assets.fbx.anim_crouch_walk.animations[0],
+			Global.assets.fbx.anim_jump_start.animations[0],
+			Global.assets.fbx.anim_jump_loop.animations[0],
+			Global.assets.fbx.anim_jump_end.animations[0],
+			Global.assets.fbx.walk.animations[0],
+			Global.assets.fbx.idle.animations[0],
+		],
+		[
+			Global.assets.fbx.h_idle.animations[0],
+			Global.assets.fbx.h_shoot.animations[0],
+		],
+	];
+
+	const higherBones = BoneUtils.getAllChildrenNames(
+		skinnedMesh,
+		"mixamorigSpine2",
+		true
+	);
+	const lowerBones = BoneUtils.not(skinnedMesh, higherBones);
+	console.log(higherBones);
+	for (const anim of animationList[0]) {
+		AnimationUtils.resetHips(anim);
+		AnimationUtils.cutBones(anim, lowerBones);
+	}
+
 	AnimationUtils.adjustClipSpeed(Global.assets.fbx.walk.animations[0], 1.5);
 	AnimationUtils.adjustClipSpeed(
 		Global.assets.fbx.anim_crouch_walk.animations[0],
 		0.5
 	);
+
+	for (const anim of animationList[1]) {
+		AnimationUtils.cutBones(anim, higherBones);
+	}
 }
 
 export default () => {

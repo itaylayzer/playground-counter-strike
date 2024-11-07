@@ -1,11 +1,11 @@
-import { LocalPlayer } from "../player/LocalPlayer";
+import { Player } from "../player/Player";
 import * as THREE from "three";
 import { Global } from "../store/Global";
 
 const UP_VECTOR = new THREE.Vector3(0, 1, 0);
 export class MovementController {
 	public update: () => void;
-	constructor(player: LocalPlayer) {
+	constructor(player: Player) {
 		let onGround = false;
 
 		const checkOnGrounded = () => {
@@ -60,7 +60,7 @@ export class MovementController {
 					4 *
 						-(
 							player.keyboard.isKeyPressed(16) ||
-							player.keyboard.isKeyPressed(67)
+							player.keyboard.isKeyPressed(17)
 						)
 			);
 

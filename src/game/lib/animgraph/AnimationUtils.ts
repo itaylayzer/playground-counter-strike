@@ -1,4 +1,4 @@
-import { AnimationClip, VectorKeyframeTrack } from "three";
+import { AnimationClip, VectorKeyframeTrack, SkinnedMesh } from "three";
 
 export class AnimationUtils {
 	static adjustClipSpeed(clip: AnimationClip, x: number) {
@@ -13,7 +13,10 @@ export class AnimationUtils {
 		clip.duration /= x;
 		return clip;
 	}
-	static resetHips(clip: AnimationClip, hipsName: string = "Hips"): AnimationClip {
+	static resetHips(
+		clip: AnimationClip,
+		hipsName: string = "Hips"
+	): AnimationClip {
 		// Find the Hips position track in the clip
 		const hipsTrack = clip.tracks.find(
 			(track) =>
@@ -38,5 +41,79 @@ export class AnimationUtils {
 		}
 
 		return clip;
+	}
+
+	static cutBonesA() {
+		// Filter the tracks to keep only those affecting the specified bones
+	}
+	static cutBones: {
+		(
+			clip: AnimationClip,
+			bones: string[] | ((bone: string) => boolean),
+			furtherBonesNames?: string[]
+		): void;
+		AncestorOf(
+			ancestorNames: string[],
+			skinnedMesh: SkinnedMesh
+		): (boneName: string) => boolean;
+		OppositeOf(
+			func: (boneName: string) => boolean
+		): (boneName: string) => boolean;
+	};
+
+	static {
+		const AncestorOf = (
+			ancestorNames: string[],
+			skinnedMesh: SkinnedMesh
+		) => {
+			return (boneName: string) => {
+				const bone = skinnedMesh.skeleton.getBoneByName(
+					boneName.includes(".") ? boneName.split(".")[0] : boneName
+				)!;
+				if (bone === undefined) {
+					console.log(boneName);
+					return true;
+				}
+				let allow = true;
+				bone.traverseAncestors((v) => {
+					if (ancestorNames.includes(v.name)) allow = false;
+				});
+
+				return allow;
+			};
+		};
+
+		const OppositeOf = (func: (boneName: string) => boolean) => {
+			return (boneName: string) => {
+				return !func(boneName);
+			};
+		};
+
+		const cutBones = (
+			clip: AnimationClip,
+			bones: string[] | ((bone: string) => boolean),
+			furtherBonesNames: string[] = []
+		) => {
+			clip.tracks = clip.tracks.filter((track) => {
+				// Extract the bone name from the track's name
+				const trackName = track.name;
+				const boneName = trackName.split(".")[0];
+
+				if (furtherBonesNames.includes(boneName)) return true;
+				// Check if the bone name is in the list of bones to keep
+				if (Array.isArray(bones)) return bones.includes(boneName);
+				else {
+					return bones(boneName);
+				}
+			});
+		};
+
+		const helper = cutBones;
+		// @ts-ignore
+		helper.AncestorOf = AncestorOf;
+		// @ts-ignore
+		helper.OppositeOf = OppositeOf;
+		// @ts-ignore
+		this.cutBones = helper;
 	}
 }

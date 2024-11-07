@@ -52,15 +52,26 @@ export class KeyboardController extends IKeyboardController {
 	}
 
 	public enable() {
-		window.addEventListener("keydown", this.onKeyDown.bind(this));
+		window.addEventListener("keydown", this.onKeyDown.bind(this), {
+			capture: true,
+		});
 		window.addEventListener("keyup", this.onKeyUp.bind(this));
+		window.addEventListener("mouseup", this.onMouseUp.bind(this));
+		window.addEventListener("mousedown", this.onMouseDown.bind(this));
 	}
 	public disable() {
 		window.removeEventListener("keydown", this.onKeyDown.bind(this));
 		window.removeEventListener("keyup", this.onKeyUp.bind(this));
+		window.removeEventListener("mouseup", this.onMouseUp.bind(this));
+		window.removeEventListener("mousedown", this.onMouseDown.bind(this));
 	}
 
 	private onKeyDown(event: KeyboardEvent) {
+		const { key, metaKey, ctrlKey } = event;
+		if ((ctrlKey || metaKey) && !["r"].includes(key)) {
+			event.preventDefault();
+		}
+
 		if (
 			!Global.lockController.isLocked ||
 			this.keysPressed.has(event.which)
@@ -74,5 +85,21 @@ export class KeyboardController extends IKeyboardController {
 
 		this.keysPressed.delete(event.which);
 		this.keysUp.add(event.which);
+	}
+
+	private onMouseDown(event: MouseEvent) {
+		if (
+			!Global.lockController.isLocked ||
+			this.mousePressed.has(event.button)
+		)
+			return;
+		this.mouseDown.add(event.button);
+	}
+
+	private onMouseUp(event: MouseEvent) {
+		if (!Global.lockController.isLocked) return;
+
+		this.mousePressed.delete(event.button);
+		this.mouseUp.add(event.button);
 	}
 }

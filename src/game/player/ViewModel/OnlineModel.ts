@@ -1,24 +1,25 @@
 import * as THREE from "three";
 import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
-import { Global } from "../store/Global";
+import { Global } from "../../store/Global";
 import {
 	A_Conditions,
 	A_P_Blender,
 	A_P_Single,
 	AnimationGraph,
-} from "../lib/animgraph";
-import { LocalPlayer } from "./LocalPlayer";
-import { AnimationUtils } from "../lib/animgraph/AnimationUtils";
-export class PlayerModel extends THREE.Group {
-	public update: () => void;
-	public onGround: boolean;
-	constructor(player: LocalPlayer) {
-		super();
+} from "../../lib/animgraph";
+import { Player } from "../Player";
+import { AnimationUtils } from "../../lib/animgraph/AnimationUtils";
+import { PlayerModel } from "./PlayerModel";
+
+export class OnlineModel extends PlayerModel {
+	constructor(player: Player) {
+		super(player);
 		const model = clone(Global.assets.fbx.t_model);
 
-		const skinnedMesh = model.children[1] as THREE.SkinnedMesh;
-
-		const nose = skinnedMesh.skeleton.getBoneByName("Eyes")!;
+		const skinnedMesh = model.getObjectByName(
+			"Soldat"
+		) as THREE.SkinnedMesh;
+		const nose = skinnedMesh.skeleton.getBoneByName("Nose")!;
 		const spine = skinnedMesh.skeleton.getBoneByName("mixamorigSpine")!;
 		this.onGround = false;
 		model.scale.multiplyScalar(0.0035);
@@ -40,7 +41,6 @@ export class PlayerModel extends THREE.Group {
 		const crouching_movementBlender = new A_P_Blender(
 			[
 				Global.assets.fbx.anim_crouch_idle.animations[0], //Global.assets.fbx.idle.animations[0],
-
 				Global.assets.fbx.anim_crouch_walk.animations[0],
 				Global.assets.fbx.anim_crouch_walk.animations[0], //Global.assets.fbx.walk.animations[0],
 			],
@@ -84,24 +84,24 @@ export class PlayerModel extends THREE.Group {
 				.map((v) => player.keyboard.isKeyPressed(v))
 				.reduce((a, b) => a || b);
 			const isShifting = player.keyboard.isKeyPressed(16);
-			const isC = player.keyboard.isKeyPressed(67);
+			const isCrouching = player.keyboard.isKeyPressed(17);
 			const onJump = player.keyboard.isKeyDown(32);
 
 			const lowerConditions: A_Conditions = {
-				normal_to_jump_start: onJump && !isC,
-				crouch_to_jump_start: onJump && isC,
-				mj2_end_to_normal: this.onGround && !isC,
-				mj2_end_to_crounch: this.onGround && isC,
+				normal_to_jump_start: onJump && !isCrouching,
+				crouch_to_jump_start: onJump && isCrouching,
+				mj2_end_to_normal: this.onGround && !isCrouching,
+				mj2_end_to_crounch: this.onGround && isCrouching,
 
 				jump_start_loopend: (clip) =>
 					clip.getTime() >= clip.getDuration() - Global.deltaTime * 5,
 
-				crouch_to_normal: player.keyboard.isKeyUp(67),
-				normal_to_crouch: player.keyboard.isKeyDown(67),
+				crouch_to_normal: player.keyboard.isKeyUp(17),
+				normal_to_crouch: player.keyboard.isKeyDown(17),
 			};
 
 			const movement =
-				(2 * +isWalking - +(isShifting && isWalking)) *
+				(2 * +isWalking - +(isShifting && isWalking && !isCrouching)) *
 				+Global.lockController.isLocked;
 
 			lgraph.update(
@@ -115,14 +115,14 @@ export class PlayerModel extends THREE.Group {
 			this.position.copy(player.body.translation());
 
 			// Update spine rotation
-			alignBoneToCamera(spine, Global.camera);
+			PlayerModel.alignBoneToCamera(spine, Global.camera);
 			// spine.rotateX(-Global.camera.rotation.x);
 
 			// Update camera position
 			Global.camera.position
 				.copy(nose.getWorldPosition(new THREE.Vector3()))
 				.add(
-					new THREE.Vector3(0, 0, 0).applyQuaternion(
+					new THREE.Vector3(0, -0.1, -0.05).applyQuaternion(
 						Global.camera.quaternion
 					)
 				)
@@ -133,25 +133,4 @@ export class PlayerModel extends THREE.Group {
 				);
 		};
 	}
-
-	static buildAnimations() {
-		//
-	}
-}
-function alignBoneToCamera(bone: THREE.Bone, camera: THREE.Camera): void {
-	// Get the world position of the bone (hips position)
-	const bonePosition = new THREE.Vector3();
-	bone.getWorldPosition(bonePosition);
-
-	// Get the target point by projecting the camera's forward direction from the bone position
-	const cameraForward = new THREE.Vector3();
-	camera.getWorldDirection(cameraForward);
-	const targetPosition = bonePosition.clone().add(cameraForward);
-
-	// Make the bone "look at" the target position, aligning it with the camera's forward direction
-	bone.lookAt(targetPosition);
-
-	// Adjust rotation to only affect the Y axis (if required to limit rotation to yaw only)
-	// bone.rotation.x = 0;
-	// bone.rotation.z = 0;
 }

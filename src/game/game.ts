@@ -5,7 +5,6 @@ import { Updateable } from "./player/Updateable";
 import { Global } from "./store/Global";
 import * as THREE from "three";
 import { LocalPlayer } from "./player/LocalPlayer";
-import { KeyboardController } from "./controllers/KeyboardController";
 
 export function game(
 	assets: loadedAssets,
@@ -17,7 +16,7 @@ export function game(
 	new Platform({ x: 0, y: 0, z: 0 }, { x: 10, y: 1, z: 50 }, "#555");
 	// new Box({ x: 0, y: 10, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 
-	new LocalPlayer(new KeyboardController());
+	new LocalPlayer();
 
 	const clock = new THREE.Clock();
 

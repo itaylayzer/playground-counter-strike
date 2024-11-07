@@ -10,6 +10,9 @@ export class IKeyboardController {
 	public keysDown: Set<number>;
 	public keysUp: Set<number>;
 	public keysPressed: Set<number>;
+	public mouseDown: Set<number>;
+	public mouseUp: Set<number>;
+	public mousePressed: Set<number>;
 	public keysAxis: [[number, number], [number, number]];
 	public beforeFirstUpdate: () => void;
 	public isLocked: boolean;
@@ -19,6 +22,9 @@ export class IKeyboardController {
 		this.keysDown = new Set();
 		this.keysUp = new Set();
 		this.keysPressed = new Set();
+		this.mouseDown = new Set();
+		this.mouseUp = new Set();
+		this.mousePressed = new Set();
 		this.keysAxis = [
 			[0, 0],
 			[0, 0],
@@ -34,10 +40,21 @@ export class IKeyboardController {
 		return this.keysUp.has(code);
 	}
 
+	public isMouseDown(code: number): boolean {
+		return this.mouseDown.has(code);
+	}
+
+	public isMousePressed(code: number): boolean {
+		return this.mousePressed.has(code);
+	}
+
+	public isMouseUp(code: number): boolean {
+		return this.mouseUp.has(code);
+	}
+
 	public isKeyDown(code: number): boolean {
 		return this.keysDown.has(code);
 	}
-
 	public firstUpdate() {
 		this.beforeFirstUpdate();
 
@@ -86,8 +103,13 @@ export class IKeyboardController {
 		for (const down of this.keysDown) {
 			this.keysPressed.add(down);
 		}
+		for (const down of this.mouseDown) {
+			this.mousePressed.add(down);
+		}
 		this.keysDown.clear();
 		this.keysUp.clear();
+		this.mouseDown.clear();
+		this.mouseUp.clear();
 	}
 
 	public get vertical() {

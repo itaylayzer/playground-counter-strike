@@ -38,7 +38,4 @@ export class A_V_Blender extends A_Vertex {
 	protected anim_setEffectiveWeight(weight: number): void {
 		this.masterWeight = weight;
 	}
-	public getAction(): AnimationAction {
-		return this.actions[this.index];
-	}
 }

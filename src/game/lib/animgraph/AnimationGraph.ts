@@ -9,18 +9,16 @@ import { Global } from "../../store/Global";
 function weightDistance(x: number, target: number) {
 	return Math.max(-Math.abs(x - target) + 1, 0);
 }
-export class AnimationGraph<T extends A_Conditions> extends EventTarget<{
+export class AnimationGraph extends EventTarget<{
 	fire: number;
 }> {
 	public vertecies: A_Vertex[];
 	public current: number;
-	private lerpedCurrent: number;
 	public mixer: THREE.AnimationMixer;
 
 	constructor(skinnedMesh: THREE.SkinnedMesh) {
 		super();
 		this.current = 0;
-		this.lerpedCurrent = 0;
 		this.vertecies = [];
 		this.mixer = new THREE.AnimationMixer(skinnedMesh);
 	}
@@ -28,18 +26,19 @@ export class AnimationGraph<T extends A_Conditions> extends EventTarget<{
 	public start(curr: number = 0) {
 		this.vertecies[(this.current = curr)].setWeight(1);
 	}
-	public update(values: Record<string, any> = {}, conditions: T = {} as T) {
+	public update(
+		values: Record<string, any> = {},
+		conditions: A_Conditions = {}
+	) {
 		const currV = this.vertecies[this.current];
 		for (const e of currV.edges.values()) {
 			e.travarseable(conditions) && this.setCurrent(e.to);
 		}
 
 		for (let i = 0; i < this.vertecies.length; i++) {
-			const distance = weightDistance(i, this.lerpedCurrent);
-			this.vertecies[i].update(values, distance);
+			const distance = weightDistance(i, this.current);
+			this.vertecies[i].update(values, conditions, distance);
 		}
-
-		this.lerpedCurrent = this.current;
 
 		this.mixer.update(Global.deltaTime);
 	}
@@ -48,7 +47,7 @@ export class AnimationGraph<T extends A_Conditions> extends EventTarget<{
 		return this.vertecies.push(vertex.build(this.mixer)) - 1;
 	}
 
-	public join(from: number, to: number, key: keyof T): boolean {
+	public join(from: number, to: number, key: string): boolean {
 		const v = this.vertecies[from];
 		if (v.edges.has(to)) return false;
 		v.edges.set(to, new A_Edge(v, to, key as string));
