@@ -3,14 +3,14 @@ import { KeyboardController } from "../controllers/KeyboardController";
 import { Global } from "../store/Global";
 import { Updateable } from "./Updateable";
 import { MovementController } from "../controllers/MovementController";
-import * as THREE from "three";
+import { PlayerModel } from "./PlayerModel";
 export class LocalPlayer extends Updateable {
 	public body: RAPIER.RigidBody;
-	public mesh: THREE.Object3D;
+	public model: PlayerModel;
 	constructor(public keyboard: KeyboardController) {
 		super();
 
-		const position = { x: 0, y: 2, z: 0.95 };
+		const position = { x: 0, y: 3, z: 0.95 };
 
 		const body = Global.world.createRigidBody(
 			RAPIER.RigidBodyDesc.dynamic()
@@ -26,10 +26,10 @@ export class LocalPlayer extends Updateable {
 		Global.world.createCollider(shape, body);
 		Global.debugRenderer.update();
 
-		this.mesh = new THREE.Object3D();
 		this.body = body;
 
 		const movement = new MovementController(this);
+		this.model = new PlayerModel(this);
 
 		this.update = () => {
 			keyboard.isLocked = false;
@@ -38,11 +38,10 @@ export class LocalPlayer extends Updateable {
 			Global.cameraController.update();
 			movement.update();
 
-			Global.camera.position
-				.copy(body.translation())
-				.add(new THREE.Vector3(0, 1, 0));
+			this.model.update();
 
 			keyboard.lastUpdate();
 		};
+		Global.lod.add(this.model);
 	}
 }

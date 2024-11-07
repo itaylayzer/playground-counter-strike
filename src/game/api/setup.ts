@@ -4,6 +4,7 @@ import * as THREE from "three";
 import RAPIER from "@dimforge/rapier3d-compat";
 import { RapierDebugRenderer } from "./RapierDebugRenderer";
 import { CameraController } from "../controllers/CameraController";
+import { AnimationUtils } from "../lib/animgraph/AnimationUtils";
 
 function setupScene() {
 	Global.container = document.querySelector("div.gameContainer")!;
@@ -34,7 +35,7 @@ function setupPhysicsWorld() {
 
 function setupControllers() {
 	Global.camera = new THREE.PerspectiveCamera(
-		90,
+		90 ,
 		Global.container.clientWidth / Global.container.clientHeight,
 		0.001,
 		10000
@@ -89,6 +90,38 @@ function setupLights() {
 	dirLight.shadow.bias = -0.0001;
 }
 
+function setupAssets() {
+	const skinnedMesh = Global.assets.fbx.ct_model.getObjectByName(
+		"Soldat"
+	) as THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Material[]>;
+	const lightBlue = "#2d435e";
+	const hardBlue = "#223042";
+	{
+		const mat = skinnedMesh.material[2] as THREE.MeshPhongMaterial;
+		mat.color = new THREE.Color(hardBlue);
+		mat.specular = new THREE.Color(hardBlue);
+	}
+	{
+		const mat = skinnedMesh.material[3] as THREE.MeshPhongMaterial;
+		mat.color = new THREE.Color(lightBlue);
+		mat.specular = new THREE.Color(lightBlue);
+	}
+
+	// -------- setup animations
+	AnimationUtils.resetHips(Global.assets.fbx.anim_crouch_idle.animations[0]);
+	AnimationUtils.resetHips(Global.assets.fbx.anim_crouch_walk.animations[0]);
+	AnimationUtils.resetHips(Global.assets.fbx.anim_jump_start.animations[0]);
+	AnimationUtils.resetHips(Global.assets.fbx.anim_jump_loop.animations[0]);
+	AnimationUtils.resetHips(Global.assets.fbx.anim_jump_end.animations[0]);
+	AnimationUtils.resetHips(Global.assets.fbx.walk.animations[0]);
+	AnimationUtils.resetHips(Global.assets.fbx.idle.animations[0]);
+	AnimationUtils.adjustClipSpeed(Global.assets.fbx.walk.animations[0], 1.5);
+	AnimationUtils.adjustClipSpeed(
+		Global.assets.fbx.anim_crouch_walk.animations[0],
+		0.5
+	);
+}
+
 export default () => {
 	setupScene();
 	setupPhysicsWorld();
@@ -96,5 +129,6 @@ export default () => {
 	setupControllers();
 	setupWindowEvents();
 
+	setupAssets();
 	setupLights();
 };

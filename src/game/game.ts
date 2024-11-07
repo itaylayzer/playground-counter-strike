@@ -4,7 +4,6 @@ import { Platform } from "./meshes/Platform";
 import { Updateable } from "./player/Updateable";
 import { Global } from "./store/Global";
 import * as THREE from "three";
-import { Box } from "./meshes/Box";
 import { LocalPlayer } from "./player/LocalPlayer";
 import { KeyboardController } from "./controllers/KeyboardController";
 
@@ -15,8 +14,8 @@ export function game(
 	Global.assets = assets;
 	setup();
 
-	new Platform({ x: 0, y: 0, z: 0 }, { x: 100, y: 1, z: 100 }, "#555");
-	new Box({ x: 0, y: 10, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Platform({ x: 0, y: 0, z: 0 }, { x: 10, y: 1, z: 50 }, "#555");
+	// new Box({ x: 0, y: 10, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 
 	new LocalPlayer(new KeyboardController());
 
@@ -30,9 +29,10 @@ export function game(
 
 		Global.deltaTime = clock.getDelta();
 		Global.elapsedTime = clock.getElapsedTime();
-		Global.world.timestep = Global.deltaTime * 1.6;
+		Global.world.timestep = Global.deltaTime * 2;
 
 		Updateable.update();
+		Global.lod.update(Global.camera);
 
 		Global.renderer.render(Global.scene, Global.camera);
 

@@ -33,8 +33,9 @@ export class CameraController {
 
 	public update() {
 		this.mouseMovementLerped.lerp(this.mouseMovement, 1 / 3);
-		this.rotation.add(this.mouseMovementLerped);
-		this.rotation.y = clamp(this.rotation.y, -90, 90);
+		if (Global.lockController.isLocked)
+			this.rotation.add(this.mouseMovementLerped);
+		this.rotation.y = clamp(this.rotation.y, -75, 85);
 
 		this.mouseMovement.set(0, 0);
 

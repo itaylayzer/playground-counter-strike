@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { Global } from "../store/Global";
 
 export class Platform {
+	public body: RAPIER.RigidBody;
 	constructor(
 		position: THREE.Vector3Like,
 		size: THREE.Vector3Like,
@@ -19,13 +20,13 @@ export class Platform {
 			size.y / 2,
 			size.z / 2
 		);
-
+		this.body = body;
 		// copy position
 		mesh.position.copy(position);
 		shape.setTranslation(position.x, position.y, position.z);
 
 		Global.world.createCollider(shape, body);
-		Global.scene.add(mesh);
+		Global.lod.add(mesh);
 		Global.debugRenderer.update();
 	}
 }

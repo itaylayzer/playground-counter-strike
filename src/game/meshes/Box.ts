@@ -34,7 +34,7 @@ export class Box extends Updateable {
 		mesh.position.copy(position);
 
 		const collider = Global.world.createCollider(shape, body);
-		Global.scene.add(mesh);
+		Global.lod.add(mesh);
 		Global.debugRenderer.update();
 
 		this.update = () => {
