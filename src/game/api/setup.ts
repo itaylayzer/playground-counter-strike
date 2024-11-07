@@ -6,6 +6,7 @@ import { RapierDebugRenderer } from "./RapierDebugRenderer";
 import { CameraController } from "../controllers/CameraController";
 import { AnimationUtils } from "../lib/animgraph/AnimationUtils";
 import { BoneUtils } from "../lib/animgraph/BoneUtils";
+import System, { SpriteRenderer } from "three-nebula";
 
 function setupScene() {
 	Global.container = document.querySelector("div.gameContainer")!;
@@ -124,18 +125,15 @@ function setupAssets() {
 	) as THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Material[]>;
 	const lightBlue = "#2d435e";
 	const hardBlue = "#223042";
-	{
-		const mat = skinnedMesh.material[2] as THREE.MeshPhongMaterial;
-		mat.color = new THREE.Color(hardBlue);
-		mat.specular = new THREE.Color(hardBlue);
-	}
-	{
-		const mat = skinnedMesh.material[3] as THREE.MeshPhongMaterial;
-		mat.color = new THREE.Color(lightBlue);
-		mat.specular = new THREE.Color(lightBlue);
-	}
 
-	// -------- setup animations
+	const colorOrder = [hardBlue, lightBlue, hardBlue];
+	[2, 3, 6].forEach((colorIndex, index) => {
+		const mat = skinnedMesh.material[colorIndex] as THREE.MeshPhongMaterial;
+		mat.color = new THREE.Color(colorOrder[index]);
+		mat.specular = new THREE.Color(colorOrder[index]);
+	});
+
+	// -------- setup animationsq
 
 	const animationList = [
 		[
@@ -150,6 +148,8 @@ function setupAssets() {
 		[
 			Global.assets.fbx.h_idle.animations[0],
 			Global.assets.fbx.h_shoot.animations[0],
+			Global.assets.fbx.h_reload.animations[0],
+			Global.assets.fbx.h_grande.animations[0],
 		],
 	];
 
@@ -159,7 +159,6 @@ function setupAssets() {
 		true
 	);
 	const lowerBones = BoneUtils.not(skinnedMesh, higherBones);
-	console.log(higherBones);
 	for (const anim of animationList[0]) {
 		AnimationUtils.resetHips(anim);
 		AnimationUtils.cutBones(anim, lowerBones);
@@ -176,6 +175,12 @@ function setupAssets() {
 	}
 }
 
+function setupSystem() {
+	const renderer = new SpriteRenderer(Global.scene, THREE);
+	Global.system = new System();
+	Global.system.addRenderer(renderer);
+}
+
 export default () => {
 	setupScene();
 	setupPhysicsWorld();
@@ -185,4 +190,6 @@ export default () => {
 
 	setupAssets();
 	setupLights();
+
+	setupSystem();
 };

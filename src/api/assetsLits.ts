@@ -1,6 +1,6 @@
 export default {
-	t_model: "fbx/models/rigged-no-head-a.fbx",
-	ct_model: "fbx/models/rigged-no-head-a.fbx",
+	t_model: "fbx/models/rigged-splitted-mats-guns.fbx",
+	ct_model: "fbx/models/rigged-splitted-mats-guns.fbx",
 	legs_model: "fbx/models/rigged-legs.fbx",
 	hands_model: "fbx/models/rigged-hands.fbx",
 
@@ -14,4 +14,8 @@ export default {
 
 	h_idle: "fbx/animations/full/Rifle Aiming Idle.fbx",
 	h_shoot: "fbx/animations/full/Firing Rifle.fbx",
+	h_reload: "fbx/animations/full/Reloading.fbx",
+	h_grande: "fbx/animations/full/Toss Grenade.fbx",
+	rifle: "fbx/models/right-rifle.fbx",
+	txt_circle: "textures/circle.png"
 };

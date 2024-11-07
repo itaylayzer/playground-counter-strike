@@ -21,7 +21,6 @@ export class MovementController {
 					const first = new THREE.Vector3()
 						.copy(contact.normal1)
 						.dot(UP_VECTOR);
-					// console.log(first);
 					onGround = first > 0.8;
 				}
 			});
@@ -56,9 +55,9 @@ export class MovementController {
 				rightVec.clone().multiplyScalar(player.keyboard.horizontal)
 			);
 			velocity.multiplyScalar(
-				8 +
+				6 -
 					4 *
-						-(
+						+(
 							player.keyboard.isKeyPressed(16) ||
 							player.keyboard.isKeyPressed(17)
 						)
@@ -67,7 +66,7 @@ export class MovementController {
 			const kinematicUpdate = () => {
 				if (player.keyboard.isKeyDown(32) && onGround) {
 					const vel = player.body.linvel();
-					vel.y = 8;
+					vel.y = 6;
 					player.body.setLinvel(vel, true);
 				}
 

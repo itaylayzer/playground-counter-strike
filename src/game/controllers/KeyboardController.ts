@@ -68,8 +68,11 @@ export class KeyboardController extends IKeyboardController {
 
 	private onKeyDown(event: KeyboardEvent) {
 		const { key, metaKey, ctrlKey } = event;
-		if ((ctrlKey || metaKey) && !["r"].includes(key)) {
+		if ((ctrlKey || metaKey) && key !== "r") {
 			event.preventDefault();
+		}
+		if (key === "q") {
+			window.location.reload();
 		}
 
 		if (

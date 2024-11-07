@@ -1,15 +1,30 @@
 import AssetLoader from "../components/AssetLoader";
 import { useIndexScreen } from "../viewmodels/useIndexScreen";
 import Assets from "../api/assetsLits";
+import { useStyles } from "../hooks/useStyles";
+import { GoDotFill } from "react-icons/go";
 function App() {
-	const { deltaTime } = useIndexScreen();
+	const {} = useIndexScreen();
 	return (
 		<>
 			<AssetLoader items={Assets} />
-			<div className="gameContainer" />
-			<p style={{ position: "absolute", top: 0, left: 0 }}>{deltaTime}</p>
+			<div className="gameContainer">
+				<div style={styles.dot}>
+					<GoDotFill color="white" size={10} />
+				</div>
+			</div>
 		</>
 	);
 }
+
+const styles = useStyles({
+	dot: {
+		position: "absolute",
+		top: "50%",
+		left: "50%",
+		translate: "-50% -50%",
+		zIndex: 2,
+	},
+});
 
 export default App;

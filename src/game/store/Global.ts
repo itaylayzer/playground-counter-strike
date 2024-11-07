@@ -4,6 +4,7 @@ import * as RAPIER from "@dimforge/rapier3d-compat";
 import { PointerLockControls } from "three/examples/jsm/Addons.js";
 import { RapierDebugRenderer } from "../api/RapierDebugRenderer";
 import { CameraController } from "../controllers/CameraController";
+import System from "three-nebula";
 
 export class Global {
 	public static scene: Scene;
@@ -19,4 +20,5 @@ export class Global {
 	public static lod: LOD;
 	public static stats: Stats;
 	static debugRenderer: RapierDebugRenderer;
+	public static system: System;
 }

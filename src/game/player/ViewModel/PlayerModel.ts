@@ -1,27 +1,35 @@
 import * as THREE from "three";
 import { Player } from "../Player";
+import { Global } from "../../store/Global";
 
 export abstract class PlayerModel extends THREE.Group {
-	public update: () => void;
+	public update: (isShooting: boolean) => void;
 	public onGround: boolean;
+
 	// @ts-ignore
 	constructor(player: Player) {
 		super();
 		this.update = () => {};
 		this.onGround = false;
 	}
-
-	static alignBoneToCamera(bone: THREE.Bone, camera: THREE.Camera): void {
-		// Get the world position of the bone (hips position)
+	static {}
+	static alignBoneToCameraPitch(
+		skinned: THREE.SkinnedMesh,
+		x: number,
+		y: number,
+		z: number
+	): void {
+		const bone = skinned.skeleton.getBoneByName("mixamorigSpine2")!;
 		const bonePosition = new THREE.Vector3();
 		bone.getWorldPosition(bonePosition);
 
-		// Get the target point by projecting the camera's forward direction from the bone position
 		const cameraForward = new THREE.Vector3();
-		camera.getWorldDirection(cameraForward);
+		Global.camera.getWorldDirection(cameraForward);
 		const targetPosition = bonePosition.clone().add(cameraForward);
 
-		// Make the bone "look at" the target position, aligning it with the camera's forward direction
 		bone.lookAt(targetPosition);
+		bone.rotateX(x);
+		bone.rotateY(y);
+		bone.rotateZ(z);
 	}
 }

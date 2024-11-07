@@ -21,11 +21,12 @@ export class Platform {
 			size.z / 2
 		);
 		this.body = body;
-		// copy position
 		mesh.position.copy(position);
 		shape.setTranslation(position.x, position.y, position.z);
 
-		Global.world.createCollider(shape, body);
+		const collider = Global.world.createCollider(shape, body);
+		collider.setCollisionGroups((0x2 << 16) | 0xffff);
+
 		Global.lod.add(mesh);
 		Global.debugRenderer.update();
 	}

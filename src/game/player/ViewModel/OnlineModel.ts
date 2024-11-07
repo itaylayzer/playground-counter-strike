@@ -115,7 +115,7 @@ export class OnlineModel extends PlayerModel {
 			this.position.copy(player.body.translation());
 
 			// Update spine rotation
-			PlayerModel.alignBoneToCamera(spine, Global.camera);
+			// PlayerModel.alignBoneToCameraPitch(spine);
 			// spine.rotateX(-Global.camera.rotation.x);
 
 			// Update camera position

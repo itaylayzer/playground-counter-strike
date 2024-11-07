@@ -71,7 +71,6 @@ export class AnimationUtils {
 					boneName.includes(".") ? boneName.split(".")[0] : boneName
 				)!;
 				if (bone === undefined) {
-					console.log(boneName);
 					return true;
 				}
 				let allow = true;

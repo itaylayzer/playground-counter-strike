@@ -11,22 +11,52 @@ import {
 import { Player } from "../Player";
 import { AnimationUtils } from "../../lib/animgraph/AnimationUtils";
 import { PlayerModel } from "./PlayerModel";
+import {
+	Alpha,
+	ease,
+	Emitter,
+	Life,
+	Position,
+	RadialVelocity,
+	Radius,
+	Rate,
+	Scale,
+	Span,
+	Vector3D,
+	SphereZone,
+	Texture,
+	Color,
+	ColorSpan,
+} from "three-nebula";
 
 export class LocalModel extends PlayerModel {
 	constructor(player: Player) {
 		super(player);
 		const model = clone(Global.assets.fbx.t_model);
-		const skinned = model.getObjectByName("Soldat") as THREE.SkinnedMesh;
+		const rifle = Global.assets.fbx.rifle.clone();
+		{
+			const rmesh = rifle.children[0] as THREE.Mesh;
+			rmesh.material = new THREE.MeshPhongMaterial({ color: "#111" });
+		}
+
+		rifle.scale.multiplyScalar(0.0035);
+		const skinned = model.getObjectByName("Soldat") as THREE.SkinnedMesh<
+			THREE.BufferGeometry,
+			THREE.Material[]
+		>;
 
 		const nose = skinned.skeleton.getBoneByName("Nose")!;
-		const spine = skinned.skeleton.getBoneByName("mixamorigSpine")!;
 
 		this.onGround = false;
+		model.position.y -= 0.6;
 		model.scale.multiplyScalar(0.0035);
 		// model.scale.x *= -1;;
 
 		super.add(model);
-
+		skinned.skeleton.getBoneByName("GunA")?.attach(rifle);
+		rifle.position.set(0, -0.2, 0);
+		rifle.rotation.set(0, Math.PI / 2, 0);
+		// super.add(rifle);
 		const graph = new AnimationGraph(skinned);
 
 		const nomral_movementBlender = new A_P_Blender(
@@ -48,7 +78,14 @@ export class LocalModel extends PlayerModel {
 			],
 			"movement"
 		);
-		let LookingFromOutside = true;
+		let LookingFromOutside = false;
+		[5, 6].forEach((matPos) => {
+			skinned.material[matPos].visible = LookingFromOutside;
+		});
+
+		let x: number = 0;
+		let y: number = 0;
+		let z: number = 0;
 		graph.addVertex(
 			new A_P_Combined([
 				new A_P_State(
@@ -82,19 +119,29 @@ export class LocalModel extends PlayerModel {
 					[
 						new A_P_Single(Global.assets.fbx.h_idle.animations[0]),
 						new A_P_Single(Global.assets.fbx.h_shoot.animations[0]),
+						new A_P_Single(
+							Global.assets.fbx.h_reload.animations[0]
+						),
+						new A_P_Single(
+							Global.assets.fbx.h_grande.animations[0]
+						),
 					],
 
 					[
 						[0, 1, "aim_to_shoot"],
 						[1, 1, "shoot_to_shoot"],
 						[1, 0, "shoot_to_aim"],
+						[0, 2, "aim_to_reload"],
+						[2, 0, "reload_to_aim"],
+						[0, 3, "aim_to_toss"],
+						[3, 0, "toss_to_aim"],
 					]
 				),
 			])
 		);
 		graph.start(0);
 
-		this.update = () => {
+		this.update = (isShooting) => {
 			const isWalking = [87, 83, 68, 65]
 				.map((v) => player.keyboard.isKeyPressed(v))
 				.reduce((a, b) => a || b);
@@ -105,10 +152,6 @@ export class LocalModel extends PlayerModel {
 			const movement =
 				(2 * +isWalking - +(isShifting && isWalking && !isCrouching)) *
 				+Global.lockController.isLocked;
-
-			const isShooting =
-				player.keyboard.isMouseDown(0) ||
-				player.keyboard.isMousePressed(0);
 
 			graph.update(
 				{ movement },
@@ -126,7 +169,17 @@ export class LocalModel extends PlayerModel {
 					normal_to_crouch: player.keyboard.isKeyDown(17),
 					aim_to_shoot: isShooting,
 					shoot_to_shoot: isShooting,
-					shoot_to_aim: !isShooting,
+					shoot_to_aim: (clip) =>
+						clip.getTime() >=
+							clip.getDuration() - Global.deltaTime * 5 &&
+						!isShooting,
+					reload_to_aim: (clip) =>
+						clip.getTime() >=
+						clip.getDuration() - Global.deltaTime * 20,
+					aim_to_reload: player.keyboard.isKeyDown(82),
+					aim_to_toss: player.keyboard.isKeyDown(70),
+					toss_to_aim: (clip) =>
+						clip.getTime() >= clip.getDuration() - Global.deltaTime,
 				}
 			);
 
@@ -134,20 +187,97 @@ export class LocalModel extends PlayerModel {
 			this.position.copy(player.body.translation());
 
 			// Update spine rotation
-			PlayerModel.alignBoneToCamera(spine, Global.camera);
-			spine.rotateOnAxis(Global.camera.up, -0.4);
+
+			PlayerModel.alignBoneToCameraPitch(skinned, 0.9, -1.1, 0.7);
+
 			// spine.rotateX(-Global.camera.rotation.x);
-			if (player.keyboard.isKeyDown(86))
+			if (player.keyboard.isKeyDown(86)) {
 				LookingFromOutside = !LookingFromOutside;
+
+				[5, 6].forEach((matPos) => {
+					skinned.material[matPos].visible = LookingFromOutside;
+				});
+			}
+
+			if (isShooting) {
+				const emitter = new Emitter();
+				const rifleDirection = new THREE.Vector3(
+					-1,
+					0,
+					0
+				).applyQuaternion(
+					rifle.getWorldQuaternion(new THREE.Quaternion())
+				);
+
+				const riflePosition = rifle.getWorldPosition(
+					new THREE.Vector3()
+				);
+				riflePosition.add(rifleDirection.clone().multiplyScalar(0.8));
+
+				emitter
+					.setLife(1)
+					.setRate(new Rate(new Span(3, 3), new Span(0.1)))
+					.setPosition(riflePosition)
+					.setInitializers([
+						new Position(new SphereZone(0, 0, 0, 0.1)),
+						new Radius(0.05, 0.2),
+						new Life(
+							// @ts-ignore
+							new Span(0.1)
+						),
+						new RadialVelocity(
+							1,
+							new Vector3D(
+								rifleDirection.x,
+								rifleDirection.y,
+								rifleDirection.z
+							),
+							10
+						),
+						new Texture(THREE, Global.assets.textures.txt_circle, {
+							blending: THREE.NormalBlending,
+						}),
+					])
+					.setBehaviours([
+						new Alpha(1, 0.1, undefined, ease.easeInExpo),
+						new Scale(1, 0.1, undefined, ease.easeInCubic),
+						// @ts-ignore
+
+						new Color(
+							// @ts-ignore
+							new ColorSpan(["#ffffff", "#db611f", "#d9760d"])
+						),
+					])
+					.emit(1);
+
+				// add the emitter and a renderer to your particle system
+				Global.system.addEmitter(emitter);
+			}
+
+			x +=
+				0.1 *
+				(+player.keyboard.isKeyDown(97) +
+					-+player.keyboard.isKeyDown(98));
+			y +=
+				0.1 *
+				(+player.keyboard.isKeyDown(100) +
+					-+player.keyboard.isKeyDown(101));
+			z +=
+				0.1 *
+				(+player.keyboard.isKeyDown(103) +
+					-+player.keyboard.isKeyDown(104));
+			if (player.keyboard.isKeyDown(105)) {
+				console.log([x, y, z]);
+			}
 
 			// Update camera position
 			Global.camera.position
 				.copy(nose.getWorldPosition(new THREE.Vector3()))
 				.add(
 					new THREE.Vector3(
-						-0.15 + -0.3 * +LookingFromOutside,
-						0.05,
-						0.1 + +LookingFromOutside
+						x - 0.15 + -0.2 * +LookingFromOutside,
+						y + 0.15,
+						z + 0.1 + 0.5 * +LookingFromOutside
 					).applyQuaternion(Global.camera.quaternion)
 				)
 				.add(

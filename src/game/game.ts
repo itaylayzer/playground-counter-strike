@@ -5,6 +5,7 @@ import { Updateable } from "./player/Updateable";
 import { Global } from "./store/Global";
 import * as THREE from "three";
 import { LocalPlayer } from "./player/LocalPlayer";
+import { Box } from "./meshes/Box";
 
 export function game(
 	assets: loadedAssets,
@@ -13,8 +14,17 @@ export function game(
 	Global.assets = assets;
 	setup();
 
-	new Platform({ x: 0, y: 0, z: 0 }, { x: 10, y: 1, z: 50 }, "#555");
-	// new Box({ x: 0, y: 10, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Platform({ x: 0, y: 0, z: 0 }, { x: 50, y: 3, z: 50 }, "#555");
+	new Box({ x: 10, y: 20, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: 10, y: 20, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: 10, y: 20, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+
+	new Box({ x: 0, y: 20, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: 0, y: 20, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+
+	new Box({ x: -10, y: 20, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: -10, y: 20, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: -10, y: 20, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 
 	new LocalPlayer();
 
@@ -33,6 +43,7 @@ export function game(
 		Updateable.update();
 		Global.lod.update(Global.camera);
 
+		Global.system.update();
 		Global.renderer.render(Global.scene, Global.camera);
 
 		accumulator += Global.deltaTime;
@@ -43,7 +54,7 @@ export function game(
 		}
 
 		Global.debugRenderer.update();
-		react.setDeltaTime(Global.deltaTime);
+		react.setDeltaTime(1 / Global.deltaTime);
 	};
 	animationLoop();
 	// Global.renderer.setAnimationLoop(animationLoop);
