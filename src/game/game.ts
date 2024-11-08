@@ -6,6 +6,7 @@ import { Global } from "./store/Global";
 import * as THREE from "three";
 import { LocalPlayer } from "./player/LocalPlayer";
 import { Box } from "./meshes/Box";
+import { Dummy } from "./player/Dummy";
 
 export function game(
 	assets: loadedAssets,
@@ -23,7 +24,6 @@ export function game(
 	new Box({ x: 10, y: 4, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 	new Box({ x: 10, y: 4, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 
-	new Box({ x: 0, y: 4, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 	new Box({ x: 0, y: 4, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 
 	new Box({ x: -10, y: 4, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
@@ -31,10 +31,9 @@ export function game(
 	new Box({ x: -10, y: 4, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 
 	new LocalPlayer();
-
+	new Dummy({ x: 0, y: 1.5, z: 15 }, { x: 0, y: Math.PI, z: 0 });
 	const clock = new THREE.Clock();
 
-	const timestep = 1 / 60; // 60 updates per second
 	let accumulator = 0;
 
 	const animationLoop = () => {

@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { Global } from "../../store/Global";
 import {
 	A_Conditions,
@@ -14,7 +13,7 @@ import { PlayerModel } from "./PlayerModel";
 export class OnlineModel extends PlayerModel {
 	constructor(player: Player) {
 		super(player);
-		const model = clone(Global.assets.fbx.t_model);
+		const model = this.skeleton();
 
 		const skinnedMesh = model.getObjectByName(
 			"Soldat"

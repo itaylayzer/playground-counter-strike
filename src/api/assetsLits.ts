@@ -1,8 +1,5 @@
 export default {
-	t_model: "fbx/models/rigged-splitted-mats-guns.fbx",
-	ct_model: "fbx/models/rigged-splitted-mats-guns.fbx",
-	legs_model: "fbx/models/rigged-legs.fbx",
-	hands_model: "fbx/models/rigged-hands.fbx",
+	buffer_model: "fbx/models/rigged-splitted-mats-guns.fbx.buff",
 
 	walk: "fbx/animations/pack/walk forward.fbx",
 	idle: "fbx/animations/pack/idle aiming.fbx",

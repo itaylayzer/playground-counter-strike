@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { clone } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { Global } from "../../store/Global";
 import {
 	A_P_Blender,
@@ -29,15 +28,20 @@ import {
 	ColorSpan,
 	VectorVelocity,
 } from "three-nebula";
-
+import { SkeletonUtils } from "three/examples/jsm/Addons.js";
+SkeletonUtils;
 export class LocalModel extends PlayerModel {
 	constructor(player: Player) {
 		super(player);
-		const model = clone(Global.assets.fbx.t_model);
+		const model = this.skeleton(true);
 		const rifle = Global.assets.fbx.rifle.clone();
 		{
 			const rmesh = rifle.children[0] as THREE.Mesh;
 			rmesh.material = new THREE.MeshPhongMaterial({ color: "#111" });
+			// @ts-ignore
+			rmesh.children[0].material = new THREE.MeshPhongMaterial({
+				color: "#111",
+			});
 		}
 
 		rifle.scale.multiplyScalar(0.0035);
@@ -158,7 +162,6 @@ export class LocalModel extends PlayerModel {
 				x * 10,
 				y * 10
 			).applyQuaternion(quat);
-			console.log(x, y);
 
 			const riflePosition = rifle.getWorldPosition(new THREE.Vector3());
 			riflePosition.add(rifleDirection.clone().multiplyScalar(0.8));
@@ -294,6 +297,8 @@ export class LocalModel extends PlayerModel {
 					skinned.material[matPos].visible = LookingFromOutside;
 				});
 			}
+
+			model.position.y = -0.3 + 0.3 * -!player.keyboard.isKeyPressed(17);
 
 			x +=
 				0.1 *

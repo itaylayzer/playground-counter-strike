@@ -14,6 +14,7 @@ export type loadedAssets = {
 	fonts: { [key: string]: Font };
 	sfx: { [key: string]: AudioBuffer };
 	progress: number;
+	buffer: { [key: string]: ArrayBuffer };
 };
 
 const defualtValue: loadedAssets = {
@@ -22,6 +23,7 @@ const defualtValue: loadedAssets = {
 	gltf: {},
 	textures: {},
 	sfx: {},
+	buffer: {},
 	progress: 0,
 };
 
@@ -29,6 +31,47 @@ type AssetStore = loadedAssets & {
 	loadMeshes(items: Record<string, string>): Promise<void>;
 	skipAssets: () => void;
 };
+
+class FetchLoader extends THREE.Loader<ArrayBuffer> {
+	constructor(manager = THREE.DefaultLoadingManager) {
+		super(manager);
+	}
+
+	public override load(
+		url: string,
+		onLoad: (data: ArrayBuffer) => void,
+		onProgress?: (event: ProgressEvent) => void,
+		onError?: (err: unknown) => void
+	) {
+		// Mark the beginning of the load
+		const scope = this;
+		this.manager.itemStart(url);
+
+		fetch(url, {
+			method: "GET",
+		})
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error(
+						`Fetch failed with status: ${response.status}`
+					);
+				}
+				return response.arrayBuffer();
+			})
+			.then((buffer) => {
+				onLoad && onLoad(buffer);
+				onProgress &&
+					onProgress(
+						new ProgressEvent("finish", { loaded: 1, total: 1 })
+					);
+				scope.manager.itemEnd(url); // Mark the end of the load
+			})
+			.catch((error) => {
+				onError && onError(error);
+				scope.manager.itemError(url);
+			});
+	}
+}
 
 export const useAssetStore = create<AssetStore>((set) => ({
 	...defualtValue,
@@ -42,6 +85,7 @@ export const useAssetStore = create<AssetStore>((set) => ({
 				textures: {},
 				fonts: {},
 				sfx: {},
+				buffer: {},
 			} as loadedAssets;
 
 			const loaders = [
@@ -50,6 +94,7 @@ export const useAssetStore = create<AssetStore>((set) => ({
 				new THREE.TextureLoader(loadingManager),
 				new FontLoader(loadingManager),
 				new THREE.AudioLoader(loadingManager),
+				new FetchLoader(loadingManager),
 			] as THREE.Loader[];
 
 			const itemsLength = Object.keys(items).length;
@@ -62,6 +107,7 @@ export const useAssetStore = create<AssetStore>((set) => ({
 				"textures",
 				"fonts",
 				"sfx",
+				"buffer",
 			];
 
 			const exts = [
@@ -70,6 +116,7 @@ export const useAssetStore = create<AssetStore>((set) => ({
 				[".png", ".jpg"],
 				[".typeface.json"],
 				[".mp3", ".wav"],
+				[".buff"],
 			];
 
 			for (const itemEntry of Object.entries(items)) {

@@ -1,4 +1,4 @@
-import { PointerLockControls } from "three/examples/jsm/Addons.js";
+import { FBXLoader, PointerLockControls } from "three/examples/jsm/Addons.js";
 import { Global } from "../store/Global";
 import * as THREE from "three";
 import RAPIER from "@dimforge/rapier3d-compat";
@@ -8,6 +8,7 @@ import { AnimationUtils } from "../lib/animgraph/AnimationUtils";
 import { BoneUtils } from "../lib/animgraph/BoneUtils";
 
 import System, { SpriteRenderer } from "three-nebula";
+import { PlayerModel } from "../player/ViewModel/PlayerModel";
 
 function setupScene() {
 	Global.container = document.querySelector("div.gameContainer")!;
@@ -121,18 +122,11 @@ function setupLights() {
 }
 
 function setupAssets() {
-	const skinnedMesh = Global.assets.fbx.ct_model.getObjectByName(
+	Global.fbxLoader = new FBXLoader();
+
+	const skinnedMesh = PlayerModel.skeleton().getObjectByName(
 		"Soldat"
 	) as THREE.SkinnedMesh<THREE.BufferGeometry, THREE.Material[]>;
-	const lightBlue = "#2d435e";
-	const hardBlue = "#223042";
-
-	const colorOrder = [hardBlue, lightBlue, hardBlue];
-	[2, 3, 6].forEach((colorIndex, index) => {
-		const mat = skinnedMesh.material[colorIndex] as THREE.MeshPhongMaterial;
-		mat.color = new THREE.Color(colorOrder[index]);
-		mat.specular = new THREE.Color(colorOrder[index]);
-	});
 
 	// -------- setup animationsq
 

@@ -87,7 +87,13 @@ export class ShooterController {
 			// Perform raycast
 			const ray = new RAPIER.Ray(from, cameraDirection);
 			const MAX_DISTANCE = 10000;
-			const hit = Global.world.castRay(ray, MAX_DISTANCE, true, 8, ~1);
+			const hit = Global.world.castRay(
+				ray,
+				MAX_DISTANCE,
+				true,
+				undefined,
+				~1
+			);
 
 			// Check if the ray hit something
 			if (hit) {
@@ -111,6 +117,7 @@ export class ShooterController {
 					player.body.handle !== hitBody.handle &&
 					hitBody.mass() > 0
 				) {
+					console.log("hi");
 					// Calculate the direction of the impulse
 					const impulseDirection = new THREE.Vector3(
 						cameraDirection.x * shootForce,

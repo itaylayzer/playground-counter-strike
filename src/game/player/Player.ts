@@ -22,10 +22,10 @@ export class Player extends Updateable {
 
 		this.body.setEnabledRotations(false, false, false, true);
 		this.body.setTranslation(position, true);
-		this.body.setDominanceGroup(1);
 		const fullShape = RAPIER.ColliderDesc.cylinder(0.6, 0.3);
 		fullShape.mass = 1;
 		const halfShape = RAPIER.ColliderDesc.cylinder(0.3, 0.3);
+		halfShape.setTranslation(0, 0.3, 0);
 		fullShape.mass = 1;
 
 		const fullCollider = Global.world.createCollider(fullShape, this.body);

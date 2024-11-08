@@ -35,4 +35,35 @@ export abstract class PlayerModel extends THREE.Group {
 		bone.rotateY(y);
 		bone.rotateZ(z);
 	}
+
+	protected get skeleton() {
+		return PlayerModel.skeleton;
+	}
+	static skeleton(ct = false) {
+		console.log(Global.assets.buffer.buffer_model);
+		const obj = Global.fbxLoader.parse(
+			Global.assets.buffer.buffer_model,
+			""
+		);
+
+		if (!ct) return obj;
+
+		const skinnedMesh = obj.getObjectByName("Soldat") as THREE.SkinnedMesh<
+			THREE.BufferGeometry,
+			THREE.Material[]
+		>;
+		const lightBlue = "#2d435e";
+		const hardBlue = "#223042";
+
+		const colorOrder = [hardBlue, lightBlue, hardBlue];
+		[2, 3, 6].forEach((colorIndex, index) => {
+			const mat = skinnedMesh.material[
+				colorIndex
+			] as THREE.MeshPhongMaterial;
+			mat.color = new THREE.Color(colorOrder[index]);
+			mat.specular = new THREE.Color(colorOrder[index]);
+		});
+
+		return obj;
+	}
 }
