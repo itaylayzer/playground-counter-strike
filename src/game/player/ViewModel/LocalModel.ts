@@ -131,6 +131,7 @@ export class LocalModel extends PlayerModel {
 					[
 						[0, 1, "aim_to_shoot"],
 						[1, 1, "shoot_to_shoot"],
+						[1, 2, "shoot_to_reload"],
 						[1, 0, "shoot_to_aim"],
 						[0, 2, "aim_to_reload"],
 						[2, 0, "reload_to_aim"],
@@ -273,6 +274,7 @@ export class LocalModel extends PlayerModel {
 					aim_to_toss: player.keyboard.isKeyDown(70),
 					toss_to_aim: (clip) =>
 						clip.getTime() >= clip.getDuration() - Global.deltaTime,
+					shoot_to_reload: player.keyboard.isKeyDown(82),
 				}
 			);
 

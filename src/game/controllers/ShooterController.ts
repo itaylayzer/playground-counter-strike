@@ -17,6 +17,10 @@ export class ShooterController {
 		let time = deltaTime;
 		let relativeTime = time;
 		let recoilNum = 0;
+		const MAX_AMMO = 30;
+		let ammo = MAX_AMMO;
+
+		let isReloading: boolean = false;
 
 		const getRecoil = () => {
 			const [x, y] = AK47_RECOIL[recoilNum];
@@ -24,12 +28,12 @@ export class ShooterController {
 		};
 
 		this.shoot = (x: number, y: number, debug: boolean = false) => {
-			if (time < deltaTime) return false;
+			if (time < deltaTime || ammo === 0 || isReloading) return false;
 			time = 0;
 			relativeTime = 0;
+			ammo--;
 
 			const rec = getRecoil();
-			console.log(recoilNum, rec);
 			x -= rec.x;
 			y -= rec.y;
 			// Get the camera direction in world space
@@ -48,7 +52,6 @@ export class ShooterController {
 			// Check if the ray hit something
 			if (hit) {
 				const hitBody = hit.collider;
-				console.log(hit);
 
 				const intersection = hit.timeOfImpact;
 				const hitPoint = from
@@ -108,13 +111,21 @@ export class ShooterController {
 				recoilNum -= 2;
 				if (recoilNum <= 0) relativeTime = 0;
 			}
+			if (player.keyboard.isKeyDown(82) && !isReloading) {
+				isReloading = true;
+				setTimeout(() => {
+					ammo = MAX_AMMO;
+					isReloading = false;
+				}, 3000);
+			}
 			recoilNum = clamp(recoilNum, 0, 30);
 			Global.renderCursor = () => {
 				let { x, y } = getRecoil();
-				x *= multiplier;
-				y *=
-					(-multiplier * Global.renderer.domElement.width) /
-					Global.renderer.domElement.height;
+				const { height, width } = Global.renderer.domElement;
+				console.log(height);
+				const m = (multiplier * 919) / height;
+				x *= m;
+				y *= (-m * width) / height;
 
 				cursorPoint.lerp({ x, y }, Global.deltaTime * 12);
 				cursor.style.translate = `${cursorPoint.x}px ${cursorPoint.y}px`;

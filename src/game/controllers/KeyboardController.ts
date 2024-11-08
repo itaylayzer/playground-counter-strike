@@ -68,7 +68,7 @@ export class KeyboardController extends IKeyboardController {
 
 	private onKeyDown(event: KeyboardEvent) {
 		const { key, metaKey, ctrlKey } = event;
-		if ((ctrlKey || metaKey) && key !== "r") {
+		if (ctrlKey || metaKey) {
 			event.preventDefault();
 		}
 		if (key === "q") {
