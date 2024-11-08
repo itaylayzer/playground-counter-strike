@@ -24,7 +24,7 @@ export class AnimationGraph extends EventTarget<{
 	}
 
 	public start(curr: number = 0) {
-		this.vertecies[(this.current = curr)].setWeight(1);
+		this.vertecies[(this.current = curr)].fadeIn();
 	}
 	public update(
 		values: Record<string, any> = {},
@@ -54,9 +54,8 @@ export class AnimationGraph extends EventTarget<{
 		return true;
 	}
 	public setCurrent(curr: number) {
-		// this.vertecies[this.current].fadeOut();
-		// this.vertecies[(this.current = curr)].fadeIn();
-		this.current = curr;
+		this.vertecies[this.current].fadeOut();
+		this.vertecies[(this.current = curr)].fadeIn();
 		this.callEvents("fire", this.current);
 	}
 }

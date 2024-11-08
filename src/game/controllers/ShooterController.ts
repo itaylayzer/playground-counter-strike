@@ -4,6 +4,7 @@ import * as RAPIER from "@dimforge/rapier3d-compat";
 import { Player } from "../player/Player";
 import { clamp } from "three/src/math/MathUtils.js";
 import AK47_RECOIL from "../data/ak47.json";
+import { Dummy } from "../player/Dummy";
 export class ShooterController {
 	shoot: (x: number, y: number, debug?: boolean) => boolean;
 	update: () => void;
@@ -117,7 +118,10 @@ export class ShooterController {
 					player.body.handle !== hitBody.handle &&
 					hitBody.mass() > 0
 				) {
-					console.log("hi");
+					if (Dummy.handle.includes(hitBody.handle)) {
+						Dummy.shake();
+					}
+					hitBody.handle;
 					// Calculate the direction of the impulse
 					const impulseDirection = new THREE.Vector3(
 						cameraDirection.x * shootForce,

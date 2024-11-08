@@ -40,7 +40,6 @@ export abstract class PlayerModel extends THREE.Group {
 		return PlayerModel.skeleton;
 	}
 	static skeleton(ct = false) {
-		console.log(Global.assets.buffer.buffer_model);
 		const obj = Global.fbxLoader.parse(
 			Global.assets.buffer.buffer_model,
 			""
