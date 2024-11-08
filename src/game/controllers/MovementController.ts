@@ -67,7 +67,7 @@ export class MovementController {
 			const kinematicUpdate = () => {
 				if (player.keyboard.isKeyDown(32) && onGround) {
 					const vel = player.body.linvel();
-					vel.y = 6;
+					vel.y = 5;
 					player.body.setLinvel(vel, true);
 				}
 

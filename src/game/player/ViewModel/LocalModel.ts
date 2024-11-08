@@ -136,6 +136,7 @@ export class LocalModel extends PlayerModel {
 						[0, 2, "aim_to_reload"],
 						[2, 0, "reload_to_aim"],
 						[0, 3, "aim_to_toss"],
+						[0, 3, "aim_to_toss"],
 						[3, 0, "toss_to_aim"],
 					]
 				),

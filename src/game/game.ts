@@ -15,16 +15,20 @@ export function game(
 	setup();
 
 	new Platform({ x: 0, y: 0, z: 0 }, { x: 50, y: 3, z: 50 }, "#555");
-	new Box({ x: 10, y: 20, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
-	new Box({ x: 10, y: 20, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
-	new Box({ x: 10, y: 20, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Platform({ x: 0, y: 1.5, z: 5 }, { x: 2, y: 1, z: 2 }, "#0000ff");
+	new Platform({ x: 2, y: 1.5, z: 5 }, { x: 2, y: 1.5, z: 2 }, "#0000ff");
+	new Platform({ x: 4, y: 2, z: 5 }, { x: 2, y: 2, z: 2 }, "#0000ff");
 
-	new Box({ x: 0, y: 20, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
-	new Box({ x: 0, y: 20, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: 10, y: 4, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: 10, y: 4, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: 10, y: 4, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 
-	new Box({ x: -10, y: 20, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
-	new Box({ x: -10, y: 20, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
-	new Box({ x: -10, y: 20, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: 0, y: 4, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: 0, y: 4, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+
+	new Box({ x: -10, y: 4, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: -10, y: 4, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
+	new Box({ x: -10, y: 4, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 
 	new LocalPlayer();
 
@@ -38,7 +42,7 @@ export function game(
 
 		Global.deltaTime = clock.getDelta();
 		Global.elapsedTime = clock.getElapsedTime();
-		Global.world.timestep = Global.deltaTime * 2;
+		Global.world.timestep = Global.deltaTime * 1;
 
 		Updateable.update();
 		Global.lod.update(Global.camera);
@@ -47,11 +51,7 @@ export function game(
 		Global.renderer.render(Global.scene, Global.camera);
 
 		accumulator += Global.deltaTime;
-
-		while (accumulator >= timestep) {
-			Global.world.step(); // Perform the physics update
-			accumulator -= timestep;
-		}
+		Global.world.step();
 
 		Global.debugRenderer.update();
 		Global.renderCursor();

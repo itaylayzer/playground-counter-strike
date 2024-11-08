@@ -1,10 +1,4 @@
-import {
-	BoxGeometry,
-	Mesh,
-	MeshStandardMaterial,
-	Vector2,
-	Vector3,
-} from "three";
+import * as THREE from "three";
 import { Global } from "../store/Global";
 import * as RAPIER from "@dimforge/rapier3d-compat";
 import { Player } from "../player/Player";
@@ -27,6 +21,50 @@ export class ShooterController {
 			return { x: (y + Math.sin(-y)) / 80, y: x / 80 };
 		};
 
+		const buildSprite = (
+			body: RAPIER.Collider,
+			pos: THREE.Vector3,
+			normal: THREE.Vector3Like,
+			debug = false
+		) => {
+			if (body.parent()!.bodyType() !== RAPIER.RigidBodyType.Dynamic) {
+				const sprite = new THREE.Mesh(
+					new THREE.PlaneGeometry(0.02, 0.02),
+					new THREE.MeshBasicMaterial({
+						transparent: true,
+						map: Global.assets.textures.txt_circle.clone(),
+						color: "black",
+					})
+				);
+				sprite.position.copy(pos);
+				const targetPosition = pos
+					.clone()
+					.add(new THREE.Vector3().copy(normal).multiplyScalar(0.01)); // Small offset along normal
+				sprite.lookAt(targetPosition);
+				sprite.position.copy(targetPosition);
+
+				Global.scene.add(sprite);
+				setTimeout(() => {
+					Global.scene.remove(sprite);
+				}, 1000);
+			}
+
+			if (debug) {
+				const mesh = new THREE.Mesh(
+					new THREE.BoxGeometry(0.1, 0.1, 0.1),
+					new THREE.MeshStandardMaterial({
+						wireframe: true,
+						color: "black",
+					})
+				);
+				mesh.position.copy(pos);
+				Global.scene.add(mesh);
+				setTimeout(() => {
+					Global.scene.remove(mesh);
+				}, 1000);
+			}
+		};
+
 		this.shoot = (x: number, y: number, debug: boolean = false) => {
 			if (time < deltaTime || ammo === 0 || isReloading) return false;
 			time = 0;
@@ -37,9 +75,11 @@ export class ShooterController {
 			x -= rec.x;
 			y -= rec.y;
 			// Get the camera direction in world space
-			const cameraDirection = new Vector3(-x, -y, -1).applyQuaternion(
-				Global.camera.quaternion
-			);
+			const cameraDirection = new THREE.Vector3(
+				-x,
+				-y,
+				-1
+			).applyQuaternion(Global.camera.quaternion);
 
 			// Convert THREE.js vectors to Cannon.js Vec3
 			const from = Global.camera.position.clone();
@@ -58,20 +98,12 @@ export class ShooterController {
 					.clone()
 					.add(cameraDirection.clone().multiplyScalar(intersection));
 
-				if (debug) {
-					const mesh = new Mesh(
-						new BoxGeometry(0.1, 0.1, 0.1),
-						new MeshStandardMaterial({
-							wireframe: true,
-							color: "black",
-						})
-					);
-					mesh.position.copy(hitPoint);
-					Global.scene.add(mesh);
-					setTimeout(() => {
-						Global.scene.remove(mesh);
-					}, 1000);
-				}
+				const info = hitBody.castRayAndGetNormal(
+					ray,
+					MAX_DISTANCE,
+					true
+				);
+				if (info) buildSprite(hitBody, hitPoint, info.normal, debug);
 
 				// Ensure the hit body has mass (i.e., is not static)
 				if (
@@ -80,7 +112,7 @@ export class ShooterController {
 					hitBody.mass() > 0
 				) {
 					// Calculate the direction of the impulse
-					const impulseDirection = new Vector3(
+					const impulseDirection = new THREE.Vector3(
 						cameraDirection.x * shootForce,
 						cameraDirection.y * shootForce,
 						cameraDirection.z * shootForce
@@ -99,8 +131,8 @@ export class ShooterController {
 			return true;
 		};
 
-		let cursorPoint = new Vector2();
-		const multiplier = 325;
+		let cursorPoint = new THREE.Vector2();
+		const multiplier = 300;
 		const cursor = document.getElementById("cursor")!;
 
 		this.update = () => {
@@ -122,7 +154,6 @@ export class ShooterController {
 			Global.renderCursor = () => {
 				let { x, y } = getRecoil();
 				const { height, width } = Global.renderer.domElement;
-				console.log(height);
 				const m = (multiplier * 919) / height;
 				x *= m;
 				y *= (-m * width) / height;

@@ -20,7 +20,6 @@ export class OnlineModel extends PlayerModel {
 			"Soldat"
 		) as THREE.SkinnedMesh;
 		const nose = skinnedMesh.skeleton.getBoneByName("Nose")!;
-		const spine = skinnedMesh.skeleton.getBoneByName("mixamorigSpine")!;
 		this.onGround = false;
 		model.scale.multiplyScalar(0.0035);
 		super.add(model);

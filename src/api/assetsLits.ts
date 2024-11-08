@@ -19,4 +19,5 @@ export default {
 	rifle: "fbx/models/right-rifle.fbx",
 	txt_circle: "textures/circle.png",
 	txt_smoke: "textures/smoke.png",
+	hit_projectile: "textures/hit_projectile.png",
 };

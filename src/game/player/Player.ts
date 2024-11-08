@@ -14,7 +14,7 @@ export class Player extends Updateable {
 	) {
 		super();
 
-		const position = { x: 0, y: 20, z: 0 };
+		const position = { x: 0, y: 4, z: 0 };
 
 		this.body = Global.world.createRigidBody(
 			RAPIER.RigidBodyDesc.dynamic()
@@ -23,12 +23,17 @@ export class Player extends Updateable {
 		this.body.setEnabledRotations(false, false, false, true);
 		this.body.setTranslation(position, true);
 		this.body.setDominanceGroup(1);
-		const shape = RAPIER.ColliderDesc.cylinder(0.6, 0.3);
-		shape.mass = 1;
+		const fullShape = RAPIER.ColliderDesc.cylinder(0.6, 0.3);
+		fullShape.mass = 1;
+		const halfShape = RAPIER.ColliderDesc.cylinder(0.3, 0.3);
+		fullShape.mass = 1;
 
-		Global.world
-			.createCollider(shape, this.body)
-			.setCollisionGroups((0x1 << 16) | 0xffff);
+		const fullCollider = Global.world.createCollider(fullShape, this.body);
+		fullCollider.setCollisionGroups((0x1 << 16) | 0xffff);
+
+		const halfCollider = Global.world.createCollider(halfShape, this.body);
+		halfCollider.setCollisionGroups((0x1 << 16) | 0xffff);
+		halfCollider.setEnabled(false);
 		Global.debugRenderer.update();
 
 		const movement = new MovementController(this);
@@ -46,6 +51,16 @@ export class Player extends Updateable {
 				if (shooter.shoot(x, y, true)) {
 					this.model.shoot(x, y);
 				}
+			}
+
+			if (keyboard.isKeyDown(17)) {
+				fullCollider.setEnabled(false);
+				halfCollider.setEnabled(true);
+			}
+
+			if (keyboard.isKeyUp(17)) {
+				fullCollider.setEnabled(true);
+				halfCollider.setEnabled(false);
 			}
 
 			shooter.update();

@@ -7,24 +7,7 @@ import { CameraController } from "../controllers/CameraController";
 import { AnimationUtils } from "../lib/animgraph/AnimationUtils";
 import { BoneUtils } from "../lib/animgraph/BoneUtils";
 
-import System, {
-	Alpha,
-	ease,
-	Emitter,
-	Life,
-	Position,
-	RadialVelocity,
-	Radius,
-	Rate,
-	Scale,
-	Span,
-	Vector3D,
-	SphereZone,
-	Texture,
-	Color,
-	ColorSpan,
-	SpriteRenderer,
-} from "three-nebula";
+import System, { SpriteRenderer } from "three-nebula";
 
 function setupScene() {
 	Global.container = document.querySelector("div.gameContainer")!;
