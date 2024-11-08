@@ -11,20 +11,25 @@ export class MovementController {
 
 		const checkOnGrounded = () => {
 			onGround = false;
-			Global.world.contactPairsWith(player.body.collider(0), (other) => {
-				const contact = other.contactCollider(
-					player.body.collider(0),
-					10
+			for (let i = 0; i < 3 && !onGround; i++) {
+				Global.world.contactPairsWith(
+					player.body.collider(i),
+					(other) => {
+						const contact = other.contactCollider(
+							player.body.collider(i),
+							10
+						);
+						if (contact === null) {
+							onGround = false;
+						} else {
+							const first = new THREE.Vector3()
+								.copy(contact.normal1)
+								.dot(UP_VECTOR);
+							onGround = first > 0.8;
+						}
+					}
 				);
-				if (contact === null) {
-					onGround = false;
-				} else {
-					const first = new THREE.Vector3()
-						.copy(contact.normal1)
-						.dot(UP_VECTOR);
-					onGround = first > 0.8;
-				}
-			});
+			}
 		};
 
 		this.update = () => {

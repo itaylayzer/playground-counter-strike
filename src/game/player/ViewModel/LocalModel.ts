@@ -28,8 +28,6 @@ import {
 	ColorSpan,
 	VectorVelocity,
 } from "three-nebula";
-import { SkeletonUtils } from "three/examples/jsm/Addons.js";
-SkeletonUtils;
 export class LocalModel extends PlayerModel {
 	constructor(player: Player) {
 		super(player);
@@ -55,6 +53,7 @@ export class LocalModel extends PlayerModel {
 		this.onGround = false;
 		model.position.y -= 0.6;
 		model.scale.multiplyScalar(0.0035);
+
 		// model.scale.x *= -1;;
 
 		super.add(model);
@@ -113,8 +112,8 @@ export class LocalModel extends PlayerModel {
 						[0, 1, "normal_to_jump_start"],
 						[4, 1, "crouch_to_jump_start"],
 						[1, 2, "jump_start_loopend"],
-						[2, 0, "mj2_end_to_normal"],
-						[2, 4, "mj2_end_to_crounch"],
+						[2, 0, "end_to_normal"],
+						[2, 4, "end_to_crounch"],
 						[0, 4, "normal_to_crouch"],
 						[4, 0, "crouch_to_normal"],
 					]
@@ -256,9 +255,8 @@ export class LocalModel extends PlayerModel {
 				{
 					normal_to_jump_start: onJump && !isCrouching,
 					crouch_to_jump_start: onJump && isCrouching,
-					mj2_end_to_normal: this.onGround && !isCrouching,
-					mj2_end_to_crounch: this.onGround && isCrouching,
-
+					end_to_crounch: this.onGround && isCrouching,
+					end_to_normal: this.onGround && !isCrouching,
 					jump_start_loopend: (clip) =>
 						clip.getTime() >=
 						clip.getDuration() - Global.deltaTime * 5,
@@ -298,7 +296,8 @@ export class LocalModel extends PlayerModel {
 				});
 			}
 
-			model.position.y = -0.3 + 0.3 * -!player.keyboard.isKeyPressed(17);
+			model.position.y =
+				-0.6 + 0.3 * +player.body.collider(2).isEnabled();
 
 			x +=
 				0.1 *

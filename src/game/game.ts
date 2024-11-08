@@ -10,15 +10,17 @@ import { Dummy } from "./player/Dummy";
 
 export function game(
 	assets: loadedAssets,
+	debug: boolean,
 	react: { setDeltaTime: React.Dispatch<React.SetStateAction<number>> }
 ) {
 	Global.assets = assets;
+	Global.debugMode = debug;
 	setup();
 
 	new Platform({ x: 0, y: 0, z: 0 }, { x: 50, y: 3, z: 50 }, "#555");
 	new Platform({ x: 0, y: 1.5, z: 5 }, { x: 2, y: 1, z: 2 }, "#0000ff");
 	new Platform({ x: 2, y: 1.5, z: 5 }, { x: 2, y: 1.5, z: 2 }, "#0000ff");
-	new Platform({ x: 4, y: 2, z: 5 }, { x: 2, y: 2, z: 2 }, "#0000ff");
+	new Platform({ x: 4, y: 1.95, z: 5 }, { x: 2, y: 1.95, z: 2 }, "#0000ff");
 
 	new Box({ x: 10, y: 4, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 	new Box({ x: 10, y: 4, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
@@ -31,7 +33,10 @@ export function game(
 	new Box({ x: -10, y: 4, z: -10 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 
 	new LocalPlayer();
+	new Dummy({ x: 2, y: 1.5, z: 15 }, { x: 0, y: Math.PI, z: 0 });
 	new Dummy({ x: 0, y: 1.5, z: 15 }, { x: 0, y: Math.PI, z: 0 });
+	new Dummy({ x: -2, y: 1.5, z: 15 }, { x: 0, y: Math.PI, z: 0 });
+
 	const clock = new THREE.Clock();
 
 	let accumulator = 0;
@@ -51,8 +56,8 @@ export function game(
 
 		accumulator += Global.deltaTime;
 		Global.world.step();
+		Global.debugMode && Global.debugRenderer.update();
 
-		Global.debugRenderer.update();
 		Global.renderCursor();
 		react.setDeltaTime(1 / Global.deltaTime);
 	};

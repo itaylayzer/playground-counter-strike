@@ -34,10 +34,10 @@ export class Box extends Updateable {
 		mesh.position.copy(position);
 
 		const collider = Global.world.createCollider(shape, body);
-		collider.setCollisionGroups((0x2 << 16) | 0xffff);
+		collider.setCollisionGroups((0x4 << 16) | 0xffff);
 
 		Global.lod.add(mesh);
-		Global.debugRenderer.update();
+		Global.debugMode && Global.debugRenderer.update();
 
 		this.update = () => {
 			mesh.position.copy(body.translation());

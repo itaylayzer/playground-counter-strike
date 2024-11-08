@@ -33,8 +33,11 @@ function setupScene() {
 function setupPhysicsWorld() {
 	Global.world = new RAPIER.World(new RAPIER.Vector3(0, -9.81, 0));
 	Global.world.numSolverIterations = 16;
-
-	Global.debugRenderer = new RapierDebugRenderer(Global.scene, Global.world);
+	if (Global.debugMode)
+		Global.debugRenderer = new RapierDebugRenderer(
+			Global.scene,
+			Global.world
+		);
 }
 
 function setupControllers() {
@@ -87,6 +90,13 @@ function setupWindowEvents() {
 	});
 	Global.container.addEventListener("mousemove", (e) => {
 		Global.cameraController.updateMouseMovement(e.movementX, e.movementY);
+	});
+	window.addEventListener("resize", () => {
+		const s = 1;
+		Global.camera.aspect = window.innerWidth / window.innerHeight;
+		Global.camera.updateProjectionMatrix();
+
+		Global.renderer.setSize(s * window.innerWidth, s * window.innerHeight);
 	});
 }
 

@@ -24,4 +24,6 @@ export class Global {
 	static recoil: { x: number; y: number };
 	static renderCursor: any;
 	static fbxLoader: FBXLoader;
+	static debugMode:boolean;
+	
 }

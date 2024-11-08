@@ -10,7 +10,11 @@ export const useIndexScreen = () => {
 
 	useEffect(() => {
 		if (assets.progress === 2 && !done) {
-			game(assets, { setDeltaTime });
+			game(
+				assets,
+				new URLSearchParams(window.location.search).has("debug"),
+				{ setDeltaTime }
+			);
 			setDone(true);
 		}
 	}, [assets.progress, done]);

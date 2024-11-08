@@ -7,19 +7,15 @@ import { A_P_Combined, A_P_Single, AnimationGraph } from "../lib/animgraph";
 import { lerp } from "three/src/math/MathUtils.js";
 
 export class Dummy extends Updateable {
-	static handle: number[];
-	private static instance: Dummy;
-	static shake() {
-		this.instance?.shake();
-	}
+	static map: Map<number, { dummy: Dummy; isHead: boolean }>;
+
 	static {
-		this.handle = [];
+		this.map = new Map();
 	}
-	private shake: () => void;
+	public damage: (isHead: boolean) => void;
 
 	constructor(position: THREE.Vector3Like, rotation: THREE.Vector3Like) {
 		super();
-		Dummy.instance = this;
 		const model = PlayerModel.skeleton();
 		model.scale.multiplyScalar(0.0035);
 		const group = new THREE.Group();
@@ -32,7 +28,10 @@ export class Dummy extends Updateable {
 		// [5, 6].forEach((matPos) => {
 		// 	skinned.material[matPos].visible = true;
 		// });
-		const { rigidBody, updateBones } = createBoneColliders(skinned, 0.1);
+		const { rigidBody, updateBones } = this.createBoneColliders(
+			skinned,
+			0.1
+		);
 
 		group.position.copy(position);
 		group.rotation.copy(
@@ -63,7 +62,7 @@ export class Dummy extends Updateable {
 			group.quaternion.copy(rigidBody.rotation());
 			group.position.copy(rigidBody.translation());
 
-			const died = health < 0;
+			const died = health <= 0;
 			graph.update(
 				{},
 				{
@@ -82,103 +81,69 @@ export class Dummy extends Updateable {
 			updateBones();
 			x = lerp(x, 0, Global.deltaTime * 5);
 		};
-		this.shake = () => {
-			x = -Math.PI / 3;
-			health -= 10;
+		this.damage = (isHead) => {
+			isHead && (x = -Math.PI / 3);
+			health -= 40 * +isHead + 10;
 		};
 	}
-}
 
-// Function to create a rigid body with multiple colliders (one per bone)
-function createBoneColliders(
-	skinnedMesh: THREE.SkinnedMesh,
-	scaleDown: number
-) {
-	// Get the bones from the skinned mesh's skeleton
-	const bones = skinnedMesh.skeleton.bones;
+	// Function to create a rigid body with multiple colliders (one per bone)
+	private createBoneColliders(
+		skinnedMesh: THREE.SkinnedMesh,
+		scaleDown: number
+	) {
+		// Get the bones from the skinned mesh's skeleton
+		const bones = skinnedMesh.skeleton.bones;
 
-	// Create a fixed rigid body (you can also choose static based on your needs)
-	const rigidBodyDesc = RAPIER.RigidBodyDesc.fixed();
-	const rigidBody = Global.world.createRigidBody(rigidBodyDesc);
+		// Create a fixed rigid body (you can also choose static based on your needs)
+		const rigidBodyDesc = RAPIER.RigidBodyDesc.fixed();
+		const rigidBody = Global.world.createRigidBody(rigidBodyDesc);
 
-	const list: THREE.Object3D[] = [bones[0]];
-	const connection: [THREE.Object3D, THREE.Object3D][] = [];
+		const list: THREE.Object3D[] = [bones[0]];
+		const connection: [THREE.Object3D, THREE.Object3D][] = [];
 
-	// Iterate through each bone and create a collider for it
-	while (list.length) {
-		const bone = list.pop();
-		if (!bone || bone.name.includes("end") || bone.name.includes("hand")) {
-			continue;
-		}
-		for (const child of bone.children) {
-			connection.push([bone, child]);
-			list.push(child);
-		}
-	}
-
-	const dummyObj = new THREE.Object3D();
-
-	// Get the world positions of the current bone and the next bone
-
-	const collidersUpdate: (() => void)[] = [];
-
-	for (const [bone, nextBone] of connection) {
-		const startPosition = new THREE.Vector3();
-		bone.getWorldPosition(startPosition);
-		startPosition.multiplyScalar(scaleDown);
-		const endPosition = new THREE.Vector3();
-		nextBone.getWorldPosition(endPosition);
-		endPosition.multiplyScalar(scaleDown);
-
-		const length = startPosition.distanceTo(endPosition);
-
-		const capsuleShape = RAPIER.ColliderDesc.capsule(length, 0.05); // Adjust radius as needed
-
-		const midPosition = new RAPIER.Vector3(
-			(startPosition.x + endPosition.x) / 2,
-			(startPosition.y + endPosition.y) / 2,
-			(startPosition.z + endPosition.z) / 2
-		);
-
-		dummyObj.position.copy(startPosition);
-		dummyObj.lookAt(endPosition);
-
-		capsuleShape.setRotation(
-			new RAPIER.Quaternion(
-				dummyObj.quaternion.x,
-				dummyObj.quaternion.y,
-				dummyObj.quaternion.z,
-				dummyObj.quaternion.w
-			)
-		);
-
-		capsuleShape.setTranslation(
-			midPosition.x * 10,
-			midPosition.y * 10,
-			midPosition.z * 10
-		);
-		capsuleShape.setMass(0.05);
-
-		const collider = Global.world.createCollider(capsuleShape, rigidBody);
-		collider.setCollisionGroups((0x2 << 16) | 0xffff);
-		collider.setSensor(true);
-
-		if (
-			bone.name.includes("Neck") ||
-			bone.name.includes("Head") ||
-			bone.name.includes("Eyes") ||
-			bone.name.includes("Nose")
-		) {
-			Dummy.handle.push(collider.handle);
+		// Iterate through each bone and create a collider for it
+		while (list.length) {
+			const bone = list.pop();
+			if (
+				!bone ||
+				bone.name.includes("end") ||
+				bone.name.includes("End") ||
+				bone.name.includes("hand") ||
+				bone.name.includes("Nose") ||
+				bone.name.includes("Eyes") ||
+				(bone.name.includes("tHand") && !bone.name.endsWith("tHand"))
+			) {
+				continue;
+			}
+			for (const child of bone.children) {
+				connection.push([bone, child]);
+				list.push(child);
+			}
 		}
 
-		collidersUpdate.push(() => {
+		const dummyObj = new THREE.Object3D();
+
+		// Get the world positions of the current bone and the next bone
+
+		const collidersUpdate: (() => void)[] = [];
+
+		for (const [bone, nextBone] of connection) {
 			const startPosition = new THREE.Vector3();
 			bone.getWorldPosition(startPosition);
 			startPosition.multiplyScalar(scaleDown);
+
 			const endPosition = new THREE.Vector3();
 			nextBone.getWorldPosition(endPosition);
 			endPosition.multiplyScalar(scaleDown);
+
+			const isHead = bone.name.includes("Head");
+			const length = startPosition.distanceTo(endPosition);
+
+			const capsuleShape = RAPIER.ColliderDesc.capsule(
+				length,
+				0.05 * (1 + +isHead)
+			); // Adjust radius as needed
 
 			const midPosition = new RAPIER.Vector3(
 				(startPosition.x + endPosition.x) / 2,
@@ -189,7 +154,7 @@ function createBoneColliders(
 			dummyObj.position.copy(startPosition);
 			dummyObj.lookAt(endPosition);
 
-			collider.setRotation(
+			capsuleShape.setRotation(
 				new RAPIER.Quaternion(
 					dummyObj.quaternion.x,
 					dummyObj.quaternion.y,
@@ -198,26 +163,69 @@ function createBoneColliders(
 				)
 			);
 
-			collider.setTranslation({
-				x: midPosition.x * 10,
-				y: midPosition.y * 10,
-				z: midPosition.z * 10,
+			capsuleShape.setTranslation(
+				midPosition.x * 10,
+				midPosition.y * 10,
+				midPosition.z * 10
+			);
+			capsuleShape.setMass(0.05);
+
+			const collider = Global.world.createCollider(
+				capsuleShape,
+				rigidBody
+			);
+			collider.setCollisionGroups((0x2 << 16) | 0xffff);
+			collider.setSensor(true);
+
+			Dummy.map.set(collider.handle, { dummy: this, isHead });
+
+			collidersUpdate.push(() => {
+				const startPosition = new THREE.Vector3();
+				bone.getWorldPosition(startPosition);
+				startPosition.multiplyScalar(scaleDown);
+				const endPosition = new THREE.Vector3();
+				nextBone.getWorldPosition(endPosition);
+				endPosition.multiplyScalar(scaleDown);
+
+				const midPosition = new RAPIER.Vector3(
+					(startPosition.x + endPosition.x) / 2,
+					(startPosition.y + endPosition.y) / 2,
+					(startPosition.z + endPosition.z) / 2
+				);
+
+				dummyObj.position.copy(startPosition);
+				dummyObj.lookAt(endPosition);
+
+				collider.setRotation(
+					new RAPIER.Quaternion(
+						dummyObj.quaternion.x,
+						dummyObj.quaternion.y,
+						dummyObj.quaternion.z,
+						dummyObj.quaternion.w
+					)
+				);
+
+				collider.setTranslation({
+					x: midPosition.x * 10,
+					y: midPosition.y * 10,
+					z: midPosition.z * 10,
+				});
 			});
-		});
+		}
+
+		rigidBody.setEnabledRotations(false, false, false, true);
+		rigidBody.setEnabledTranslations(true, true, true, true);
+		const fullShape = RAPIER.ColliderDesc.cylinder(0.6, 0.3);
+		fullShape.mass = 0.05;
+		fullShape.setTranslation(0, 0.6, 0);
+		const collider = Global.world.createCollider(fullShape, rigidBody);
+		collider.setCollisionGroups((0x1 << 16) | 0xffff);
+
+		return {
+			rigidBody,
+			updateBones() {
+				collidersUpdate.forEach((v) => v());
+			},
+		};
 	}
-
-	rigidBody.setEnabledRotations(false, false, false, true);
-	rigidBody.setEnabledTranslations(true, true, true, true);
-	const fullShape = RAPIER.ColliderDesc.cylinder(0.6, 0.3);
-	fullShape.mass = 0.05;
-	fullShape.setTranslation(0, 0.6, 0);
-	const collider = Global.world.createCollider(fullShape, rigidBody);
-	collider.setCollisionGroups((0x1 << 16) | 0xffff);
-
-	return {
-		rigidBody,
-		updateBones() {
-			collidersUpdate.forEach((v) => v());
-		},
-	};
 }

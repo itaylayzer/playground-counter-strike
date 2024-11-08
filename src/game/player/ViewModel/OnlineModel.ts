@@ -9,7 +9,7 @@ import {
 import { Player } from "../Player";
 import { AnimationUtils } from "../../lib/animgraph/AnimationUtils";
 import { PlayerModel } from "./PlayerModel";
-
+	
 export class OnlineModel extends PlayerModel {
 	constructor(player: Player) {
 		super(player);

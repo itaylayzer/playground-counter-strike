@@ -28,7 +28,10 @@ export class ShooterController {
 			normal: THREE.Vector3Like,
 			debug = false
 		) => {
-			if (body.parent()!.bodyType() !== RAPIER.RigidBodyType.Dynamic) {
+			if (
+				body.parent()!.bodyType() !== RAPIER.RigidBodyType.Dynamic &&
+				!((body.collisionGroups() >> 16) & 0x02)
+			) {
 				const sprite = new THREE.Mesh(
 					new THREE.PlaneGeometry(0.02, 0.02),
 					new THREE.MeshBasicMaterial({
@@ -118,9 +121,9 @@ export class ShooterController {
 					player.body.handle !== hitBody.handle &&
 					hitBody.mass() > 0
 				) {
-					if (Dummy.handle.includes(hitBody.handle)) {
-						Dummy.shake();
-					}
+					const dummy = Dummy.map.get(hitBody.handle);
+					dummy && dummy.dummy.damage(dummy.isHead);
+
 					hitBody.handle;
 					// Calculate the direction of the impulse
 					const impulseDirection = new THREE.Vector3(
@@ -163,13 +166,31 @@ export class ShooterController {
 			}
 			recoilNum = clamp(recoilNum, 0, 30);
 			Global.renderCursor = () => {
-				let { x, y } = getRecoil();
-				const { height, width } = Global.renderer.domElement;
-				const m = (multiplier * 919) / height;
-				x *= m;
-				y *= (-m * width) / height;
+				const rec = getRecoil();
+				const x = -rec.x;
+				const y = -rec.y;
+				// Get the camera direction in world space
+				const cameraDirection = new THREE.Vector3(
+					-x,
+					-y,
+					-1
+				).applyQuaternion(Global.camera.quaternion);
 
-				cursorPoint.lerp({ x, y }, Global.deltaTime * 12);
+				const point = Global.camera.position
+					.clone()
+					.add(cameraDirection);
+				const screenPosition = point.project(Global.camera);
+
+				const halfWidth = Global.renderer.domElement.width / 2;
+				const halfHeight = Global.renderer.domElement.height / 2;
+
+				const pixelX = screenPosition.x * halfWidth + halfWidth;
+				const pixelY = -(screenPosition.y * halfHeight) + halfHeight;
+
+				cursorPoint.lerp(
+					{ x: pixelX - halfWidth, y: pixelY - halfHeight },
+					Global.deltaTime * 12
+				);
 				cursor.style.translate = `${cursorPoint.x}px ${cursorPoint.y}px`;
 			};
 		};
