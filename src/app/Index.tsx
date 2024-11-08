@@ -10,7 +10,7 @@ function App() {
 			<AssetLoader items={Assets} />
 			<div className="gameContainer">
 				<div style={styles.dot}>
-					<GoDotFill color="white" size={10} />
+					<GoDotFill id="cursor" color="white" size={10} />
 				</div>
 			</div>
 		</>

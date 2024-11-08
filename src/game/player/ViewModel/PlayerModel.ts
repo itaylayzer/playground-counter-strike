@@ -3,13 +3,16 @@ import { Player } from "../Player";
 import { Global } from "../../store/Global";
 
 export abstract class PlayerModel extends THREE.Group {
-	public update: (isShooting: boolean) => void;
+	public update: () => void;
+	public shoot: (x: number, y: number) => void;
+
 	public onGround: boolean;
 
 	// @ts-ignore
 	constructor(player: Player) {
 		super();
 		this.update = () => {};
+		this.shoot = () => {};
 		this.onGround = false;
 	}
 	static {}

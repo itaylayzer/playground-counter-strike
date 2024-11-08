@@ -6,3 +6,7 @@ https://sketchfab.com/3d-models/counter-strikes-de-mirage-map-1c3e62a4a98d4eaa90
 
 "CS:GO Maap Mirage" - @Simondin Florian
 https://sketchfab.com/3d-models/csgo-maap-mirage-9cd8b2a6ad7248c1911ad15eddfcccfa
+
+Smoke - https://www.pngkey.com/maxpic/u2q8a9i1u2r5a9w7/
+
+https://nuke-theta.vercel.app/

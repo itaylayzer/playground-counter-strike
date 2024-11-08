@@ -51,9 +51,8 @@ export class A_V_State extends A_Vertex {
 	}
 
 	public setCurrent(curr: number) {
-		// this.vertecies[this.current].fadeOut();
-		// this.vertecies[(this.current = curr)].fadeIn();
-		this.current = curr;
+		this.vertecies[this.current].fadeOut();
+		this.vertecies[(this.current = curr)].fadeIn();
 	}
 	protected anim_setEffectiveWeight(weight: number): void {
 		this.setWeight(weight);

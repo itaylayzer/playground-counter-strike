@@ -5,6 +5,7 @@ import { Global } from "../store/Global";
 const UP_VECTOR = new THREE.Vector3(0, 1, 0);
 export class MovementController {
 	public update: () => void;
+	public shootRange: () => { x: number; y: number };
 	constructor(player: Player) {
 		let onGround = false;
 
@@ -78,5 +79,29 @@ export class MovementController {
 			player.model.onGround = onGround;
 			kinematicUpdate();
 		};
+
+		this.shootRange = () => {
+			const rangeLengh =
+				(Math.abs(player.keyboard.vertical) +
+					Math.abs(player.keyboard.horizontal) +
+					Math.abs(player.body.linvel().y) * 0.33) *
+				(player.keyboard.isKeyPressed(17)
+					? 0.5
+					: player.keyboard.isKeyPressed(16)
+					? 2
+					: 4);
+
+			return randomPointInCircle(rangeLengh / 20);
+		};
 	}
+}
+
+function randomPointInCircle(radius: number): { x: number; y: number } {
+	const angle = Math.random() * 2 * Math.PI;
+	const distance = Math.sqrt(Math.random()) * radius;
+
+	const x = distance * Math.cos(angle);
+	const y = distance * Math.sin(angle);
+
+	return { x, y };
 }

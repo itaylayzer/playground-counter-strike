@@ -54,6 +54,7 @@ export function game(
 		}
 
 		Global.debugRenderer.update();
+		Global.renderCursor();
 		react.setDeltaTime(1 / Global.deltaTime);
 	};
 	animationLoop();

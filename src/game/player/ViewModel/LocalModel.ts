@@ -27,6 +27,7 @@ import {
 	Texture,
 	Color,
 	ColorSpan,
+	VectorVelocity,
 } from "three-nebula";
 
 export class LocalModel extends PlayerModel {
@@ -141,7 +142,99 @@ export class LocalModel extends PlayerModel {
 		);
 		graph.start(0);
 
-		this.update = (isShooting) => {
+		let isShooting = false;
+		this.shoot = (x, y) => {
+			isShooting = true;
+			const explotion = new Emitter();
+			const bullet = new Emitter();
+			const quat = rifle.getWorldQuaternion(new THREE.Quaternion());
+			const rifleDirection = new THREE.Vector3(-1, 0, 0).applyQuaternion(
+				quat
+			);
+			const shootingDirection = new THREE.Vector3(
+				-1,
+				x * 10,
+				y * 10
+			).applyQuaternion(quat);
+			console.log(x, y);
+
+			const riflePosition = rifle.getWorldPosition(new THREE.Vector3());
+			riflePosition.add(rifleDirection.clone().multiplyScalar(0.8));
+
+			explotion
+				.setLife(1)
+				.setRate(new Rate(new Span(3, 3), new Span(0.1)))
+				.setPosition(riflePosition)
+				.setInitializers([
+					new Position(new SphereZone(0, 0, 0, 0.1)),
+					new Radius(0.05, 0.2),
+					new Life(
+						// @ts-ignore
+						new Span(0.1)
+					),
+					new RadialVelocity(
+						1,
+						new Vector3D(
+							shootingDirection.x,
+							shootingDirection.y,
+							shootingDirection.z
+						),
+						10
+					),
+					new Texture(THREE, Global.assets.textures.txt_circle, {
+						blending: THREE.NormalBlending,
+					}),
+				])
+				.setBehaviours([
+					new Alpha(1, 0.1, undefined, ease.easeInExpo),
+					new Scale(1, 0.1, undefined, ease.easeInCubic),
+					// @ts-ignore
+
+					new Color(
+						// @ts-ignore
+						new ColorSpan(["#ffffff", "#db611f", "#d9760d"])
+					),
+				])
+				.emit(1);
+
+			bullet
+				.setLife(1)
+				.setRate(new Rate(new Span(1, 1), new Span(0.2)))
+				.setPosition(riflePosition)
+				.setInitializers([
+					new Position(new SphereZone(0, 0, 0, 0)),
+					new Radius(0.02, 0.02),
+					new Life(
+						// @ts-ignore
+						new Span(0.1)
+					),
+					new VectorVelocity(
+						new Vector3D(
+							shootingDirection.x,
+							shootingDirection.y,
+							shootingDirection.z
+						),
+						10
+					),
+					new Texture(THREE, Global.assets.textures.txt_circle),
+				])
+				.setBehaviours([
+					new Alpha(1, 0.1, undefined, ease.easeInExpo),
+					new Scale(1, 0.1, undefined, ease.easeInCubic),
+					// @ts-ignore
+
+					new Color(
+						// @ts-ignore
+						new ColorSpan("#ffffff")
+					),
+				])
+				.emit(1);
+
+			// add the emitter and a renderer to your particle system
+			Global.system.addEmitter(explotion);
+			// Global.system.addEmitter(bullet);
+		};
+		this.update = () => {
 			const isWalking = [87, 83, 68, 65]
 				.map((v) => player.keyboard.isKeyPressed(v))
 				.reduce((a, b) => a || b);
@@ -171,7 +264,7 @@ export class LocalModel extends PlayerModel {
 					shoot_to_shoot: isShooting,
 					shoot_to_aim: (clip) =>
 						clip.getTime() >=
-							clip.getDuration() - Global.deltaTime * 5 &&
+							clip.getDuration() - Global.deltaTime * 2 &&
 						!isShooting,
 					reload_to_aim: (clip) =>
 						clip.getTime() >=
@@ -197,61 +290,6 @@ export class LocalModel extends PlayerModel {
 				[5, 6].forEach((matPos) => {
 					skinned.material[matPos].visible = LookingFromOutside;
 				});
-			}
-
-			if (isShooting) {
-				const emitter = new Emitter();
-				const rifleDirection = new THREE.Vector3(
-					-1,
-					0,
-					0
-				).applyQuaternion(
-					rifle.getWorldQuaternion(new THREE.Quaternion())
-				);
-
-				const riflePosition = rifle.getWorldPosition(
-					new THREE.Vector3()
-				);
-				riflePosition.add(rifleDirection.clone().multiplyScalar(0.8));
-
-				emitter
-					.setLife(1)
-					.setRate(new Rate(new Span(3, 3), new Span(0.1)))
-					.setPosition(riflePosition)
-					.setInitializers([
-						new Position(new SphereZone(0, 0, 0, 0.1)),
-						new Radius(0.05, 0.2),
-						new Life(
-							// @ts-ignore
-							new Span(0.1)
-						),
-						new RadialVelocity(
-							1,
-							new Vector3D(
-								rifleDirection.x,
-								rifleDirection.y,
-								rifleDirection.z
-							),
-							10
-						),
-						new Texture(THREE, Global.assets.textures.txt_circle, {
-							blending: THREE.NormalBlending,
-						}),
-					])
-					.setBehaviours([
-						new Alpha(1, 0.1, undefined, ease.easeInExpo),
-						new Scale(1, 0.1, undefined, ease.easeInCubic),
-						// @ts-ignore
-
-						new Color(
-							// @ts-ignore
-							new ColorSpan(["#ffffff", "#db611f", "#d9760d"])
-						),
-					])
-					.emit(1);
-
-				// add the emitter and a renderer to your particle system
-				Global.system.addEmitter(emitter);
 			}
 
 			x +=
@@ -285,6 +323,8 @@ export class LocalModel extends PlayerModel {
 						player.body.rotation()
 					)
 				);
+
+			isShooting = false;
 		};
 	}
 }

@@ -32,22 +32,25 @@ export class Player extends Updateable {
 		Global.debugRenderer.update();
 
 		const movement = new MovementController(this);
-		const shooter = new ShooterController(this.body, 10, 125);
+		const shooter = new ShooterController(this, 10, 100);
 		this.model = new ModelClass(this);
 
 		this.update = () => {
-			let isShooting = false;
 			keyboard.isLocked = false;
 			keyboard.firstUpdate();
 
 			Global.cameraController.update();
 
-			if (Global.lockController.isLocked && keyboard.isMousePressed(0))
-				isShooting = shooter.shoot();
+			if (Global.lockController.isLocked && keyboard.isMousePressed(0)) {
+				const { x, y } = movement.shootRange();
+				if (shooter.shoot(x, y, true)) {
+					this.model.shoot(x, y);
+				}
+			}
 
 			shooter.update();
 			movement.update();
-			this.model.update(isShooting);
+			this.model.update();
 
 			keyboard.lastUpdate();
 		};

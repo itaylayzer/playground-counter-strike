@@ -7,18 +7,20 @@ import { CameraController } from "../controllers/CameraController";
 import System from "three-nebula";
 
 export class Global {
-	public static scene: Scene;
-	public static container: HTMLDivElement;
-	public static renderer: WebGLRenderer;
-	public static camera: PerspectiveCamera;
-	public static cameraController: CameraController;
-	public static deltaTime: number = 0;
-	public static elapsedTime: number = 0;
-	public static assets: loadedAssets;
-	public static lockController: PointerLockControls;
-	public static world: RAPIER.World;
-	public static lod: LOD;
-	public static stats: Stats;
+	static scene: Scene;
+	static container: HTMLDivElement;
+	static renderer: WebGLRenderer;
+	static camera: PerspectiveCamera;
+	static cameraController: CameraController;
+	static deltaTime: number = 0;
+	static elapsedTime: number = 0;
+	static assets: loadedAssets;
+	static lockController: PointerLockControls;
+	static world: RAPIER.World;
+	static lod: LOD;
+	static stats: Stats;
 	static debugRenderer: RapierDebugRenderer;
-	public static system: System;
+	static system: System;
+	static recoil: { x: number; y: number };
+	static renderCursor: any;
 }

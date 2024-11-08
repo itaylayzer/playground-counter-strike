@@ -17,5 +17,6 @@ export default {
 	h_reload: "fbx/animations/full/Reloading.fbx",
 	h_grande: "fbx/animations/full/Toss Grenade.fbx",
 	rifle: "fbx/models/right-rifle.fbx",
-	txt_circle: "textures/circle.png"
+	txt_circle: "textures/circle.png",
+	txt_smoke: "textures/smoke.png",
 };
