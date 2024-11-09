@@ -49,11 +49,11 @@ export class BoneController {
 
 			const collidersUpdate: (() => void)[] = [];
 
-			for (const [bone, nextBone] of connection) {
-				const rigidBody = Global.world.createRigidBody(
-					RAPIER.RigidBodyDesc.fixed()
-				);
+			const rigidBody = Global.world.createRigidBody(
+				RAPIER.RigidBodyDesc.fixed()
+			);
 
+			for (const [bone, nextBone] of connection) {
 				const startPosition = new THREE.Vector3();
 				bone.getWorldPosition(startPosition);
 				startPosition.multiplyScalar(scaleDown);
@@ -99,24 +99,20 @@ export class BoneController {
 					dummyObj.position.copy(startPosition);
 					dummyObj.lookAt(endPosition);
 
-					rigidBody.setRotation(
+					collider.setRotation(
 						new RAPIER.Quaternion(
 							dummyObj.quaternion.x,
 							dummyObj.quaternion.y,
 							dummyObj.quaternion.z,
 							dummyObj.quaternion.w
-						),
-						true
+						)
 					);
 
-					rigidBody.setTranslation(
-						{
-							x: midPosition.x * 10,
-							y: midPosition.y * 10,
-							z: midPosition.z * 10,
-						},
-						true
-					);
+					collider.setTranslation({
+						x: midPosition.x * 10,
+						y: midPosition.y * 10,
+						z: midPosition.z * 10,
+					});
 				});
 			}
 
@@ -129,8 +125,6 @@ export class BoneController {
 
 		const { updateBones } = createBoneColliders();
 
-		this.update = () => {
-			updateBones();
-		};
+		this.update = updateBones;
 	}
 }

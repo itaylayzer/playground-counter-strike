@@ -63,6 +63,9 @@ export class Dummy extends Updateable {
 			group.position.copy(rigidBody.translation());
 
 			const died = health <= 0;
+
+			rigidBody.collider(rigidBody.numColliders() - 1).setEnabled(!died);
+
 			graph.update(
 				{},
 				{
