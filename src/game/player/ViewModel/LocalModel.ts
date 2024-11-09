@@ -147,7 +147,22 @@ export class LocalModel extends PlayerModel {
 		);
 		graph.start(0);
 
-		let isShooting = false;
+		let isShooting = false,
+			isThrowing = false,
+			isReloading = false;
+
+		const ammoMesh = rifle.children[0].children[0];
+		const ammoData = [
+			ammoMesh.position.clone(),
+			ammoMesh.quaternion.clone(),
+		];
+		const CAMERA_ROT_MODES = [
+			{ x: 0, y: 0.5, z: 0 },
+			{ x: 0.9, y: -1.1, z: 0.7 },
+		];
+
+		const cameraRot = new THREE.Vector3(0, 0, 0);
+
 		this.shoot = (x, y) => {
 			isShooting = true;
 			const explotion = new Emitter();
@@ -269,13 +284,62 @@ export class LocalModel extends PlayerModel {
 						clip.getTime() >=
 							clip.getDuration() - Global.deltaTime * 2 &&
 						!isShooting,
-					reload_to_aim: (clip) =>
-						clip.getTime() >=
-						clip.getDuration() - Global.deltaTime * 20,
+					reload_to_aim: (clip) => {
+						const b =
+							clip.getTime() >=
+							clip.getDuration() - Global.deltaTime * 20;
+
+						if (
+							clip.getTime() > 0.5 &&
+							clip.getTime() < 1 &&
+							!isReloading
+						) {
+							isReloading = true;
+							// TODO: attach to GunA
+
+							const gunB =
+								skinned.skeleton.getBoneByName("GunB")!;
+							gunB.add(ammoMesh);
+							ammoMesh.position.copy({
+								x: 0.4,
+								y: -0.1,
+								z: 0.1,
+							});
+						}
+
+						if (clip.getTime() > 1.6 && isReloading) {
+							isReloading = false;
+							rifle.children[0]?.add(ammoMesh);
+							ammoMesh.position.copy(
+								ammoData[0] as THREE.Vector3Like
+							);
+							ammoMesh.quaternion.copy(
+								ammoData[1] as THREE.QuaternionLike
+							);
+						}
+
+						return b;
+					},
 					aim_to_reload: player.keyboard.isKeyDown(82),
-					aim_to_toss: player.keyboard.isKeyDown(70),
-					toss_to_aim: (clip) =>
-						clip.getTime() >= clip.getDuration() - Global.deltaTime,
+					aim_to_toss: () => {
+						const r = player.keyboard.isKeyDown(70);
+
+						r && (isThrowing = true);
+						return r;
+					},
+					toss_to_aim: (clip) => {
+						const r =
+							clip.getTime() >=
+							clip.getDuration() - Global.deltaTime;
+
+						if (isThrowing)
+							rifle.visible =
+								clip.getTime() < 0.5 || clip.getTime() > 2;
+
+						r && (isThrowing = false);
+
+						return r;
+					},
 					shoot_to_reload: player.keyboard.isKeyDown(82),
 				}
 			);
@@ -284,8 +348,11 @@ export class LocalModel extends PlayerModel {
 			this.position.copy(player.body.translation());
 
 			// Update spine rotation
-
-			PlayerModel.alignBoneToCameraPitch(skinned, 0.9, -1.1, 0.7);
+			cameraRot.lerp(
+				CAMERA_ROT_MODES[+rifle.visible],
+				Global.deltaTime * 10
+			);
+			PlayerModel.alignBoneToCameraPitch(skinned, cameraRot);
 
 			// spine.rotateX(-Global.camera.rotation.x);
 			if (player.keyboard.isKeyDown(86)) {
@@ -300,15 +367,15 @@ export class LocalModel extends PlayerModel {
 				-0.6 + 0.3 * +player.body.collider(2).isEnabled();
 
 			x +=
-				0.1 *
+				0.025 *
 				(+player.keyboard.isKeyDown(97) +
 					-+player.keyboard.isKeyDown(98));
 			y +=
-				0.1 *
+				0.025 *
 				(+player.keyboard.isKeyDown(100) +
 					-+player.keyboard.isKeyDown(101));
 			z +=
-				0.1 *
+				0.025 *
 				(+player.keyboard.isKeyDown(103) +
 					-+player.keyboard.isKeyDown(104));
 			if (player.keyboard.isKeyDown(105)) {

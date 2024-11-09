@@ -3,13 +3,12 @@ import {
 	AnimationClip,
 	AnimationMixer,
 	LoopOnce,
-	LoopPingPong,
 	LoopRepeat,
 } from "three";
 import { A_Vertex } from "./A_Vertex";
 
 export class A_V_Single extends A_Vertex {
-	private action: AnimationAction;
+	public action: AnimationAction;
 	constructor(
 		mixer: AnimationMixer,
 		clip: AnimationClip,

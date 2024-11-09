@@ -1,5 +1,4 @@
 import { A_Edge } from "./A_Edge";
-import { AnimationAction } from "three";
 import { A_Conditions } from "./types";
 
 export abstract class A_Vertex {
@@ -23,6 +22,9 @@ export abstract class A_Vertex {
 	}
 	public setWeight(w: number) {
 		this.weight = w;
+	}
+	public getWeight() {
+		return this.weight;
 	}
 	public update(
 		values: Record<string, any>,

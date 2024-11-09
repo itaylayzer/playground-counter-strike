@@ -71,7 +71,7 @@ export class KeyboardController extends IKeyboardController {
 		if (ctrlKey || metaKey) {
 			event.preventDefault();
 		}
-		if (key === "q") {
+		if (key === "e") {
 			window.location.reload();
 		}
 

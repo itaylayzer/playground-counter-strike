@@ -15,10 +15,10 @@ https://nuke-theta.vercel.app/
 
 ## TODO:
 
-1. Deagle
-2. Knife
-3. Blood
-4. Bomb:
+1. Weapons:
+    - Deagle
+    - Knife
+2. Bomb:
     - Bomb
     - Smoke
     - Moly

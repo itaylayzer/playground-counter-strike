@@ -70,12 +70,6 @@ export class BoneController {
 					0.05 * (1 + +isHead)
 				); // Adjust radius as needed
 
-				const midPosition = new RAPIER.Vector3(
-					(startPosition.x + endPosition.x) / 2,
-					(startPosition.y + endPosition.y) / 2,
-					(startPosition.z + endPosition.z) / 2
-				);
-
 				dummyObj.position.copy(startPosition);
 				dummyObj.lookAt(endPosition);
 

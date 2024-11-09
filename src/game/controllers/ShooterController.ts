@@ -146,7 +146,6 @@ export class ShooterController {
 		};
 
 		let cursorPoint = new THREE.Vector2();
-		const multiplier = 300;
 		const cursor = document.getElementById("cursor")!;
 
 		this.update = () => {

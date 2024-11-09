@@ -17,10 +17,10 @@ export function game(
 	Global.debugMode = debug;
 	setup();
 
-	new Platform({ x: 0, y: 0, z: 0 }, { x: 50, y: 3, z: 50 }, "#555");
-	new Platform({ x: 0, y: 1.5, z: 5 }, { x: 2, y: 1, z: 2 }, "#0000ff");
-	new Platform({ x: 2, y: 1.5, z: 5 }, { x: 2, y: 1.5, z: 2 }, "#0000ff");
-	new Platform({ x: 4, y: 1.95, z: 5 }, { x: 2, y: 1.95, z: 2 }, "#0000ff");
+	new Platform({ x: 0, y: 0, z: 0 }, { x: 50, y: 3, z: 50 }, "#444");
+	new Platform({ x: 0, y: 1.5, z: 5 }, { x: 2, y: 1, z: 2 }, "#333");
+	new Platform({ x: 2, y: 1.5, z: 5 }, { x: 2, y: 1.5, z: 2 }, "#555");
+	new Platform({ x: 4, y: 1.95, z: 5 }, { x: 2, y: 1.95, z: 2 }, "#666");
 
 	new Box({ x: 10, y: 4, z: 0 }, { x: 1, y: 1, z: 1 }, "#ff0000");
 	new Box({ x: 10, y: 4, z: 10 }, { x: 1, y: 1, z: 1 }, "#ff0000");

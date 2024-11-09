@@ -18,9 +18,7 @@ export abstract class PlayerModel extends THREE.Group {
 	static {}
 	static alignBoneToCameraPitch(
 		skinned: THREE.SkinnedMesh,
-		x: number,
-		y: number,
-		z: number
+		{ x, y, z }: THREE.Vector3Like
 	): void {
 		const bone = skinned.skeleton.getBoneByName("mixamorigSpine2")!;
 		const bonePosition = new THREE.Vector3();
