@@ -1,3 +1,7 @@
+# Playground Counter Strike
+
+a first person shooter with counter strike movement style playeground created with three.js and rapier.js \
+
 ## Credits
 
 ### sketchfab credits
