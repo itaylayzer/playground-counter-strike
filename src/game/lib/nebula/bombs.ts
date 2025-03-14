@@ -1,4 +1,3 @@
-import { TextureLoader, Vector3 } from "three";
 import * as Nebula from "three-nebula";
 import * as THREE from "three";
 import { Global } from "../../store/Global";

@@ -22,7 +22,6 @@ import {
 } from "three-nebula";
 import { Updateable } from "../player/Updateable";
 import { LocalPlayer } from "../player/LocalPlayer";
-import { bombEmitter } from "../lib/nebula/bombs";
 
 class ThrowBomb extends Updateable {
 	constructor(position: THREE.Vector3, direction: THREE.Vector3) {

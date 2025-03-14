@@ -82,11 +82,13 @@ function setupControllers() {
 		}
 	}
 
+	// @ts-ignore
 	Global.lockController.addEventListener("lock", function () {
 		// @ts-ignore
 		navigator.keyboard.lock(LOCKED_KEYS);
 	});
 
+	// @ts-ignore
 	Global.lockController.addEventListener("unlock", function () {
 		// @ts-ignore
 		navigator.keyboard.unlock(LOCKED_KEYS);
