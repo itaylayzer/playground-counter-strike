@@ -1,7 +1,7 @@
-import { Updateable } from "../player/Updateable";
+import { Updateable } from "../../player/Updateable";
 import RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
-import { Global } from "../store/Global";
+import { Global } from "../../store/Global";
 export class Box extends Updateable {
 	constructor(
 		position: THREE.Vector3Like,

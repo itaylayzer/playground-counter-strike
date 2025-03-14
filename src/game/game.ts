@@ -1,11 +1,11 @@
 import { loadedAssets } from "../store/useAssetLoader";
 import setup from "./api/setup";
-import { Platform } from "./meshes/Platform";
+import { Platform } from "./lib/meshes/Platform";
 import { Updateable } from "./player/Updateable";
 import { Global } from "./store/Global";
 import * as THREE from "three";
 import { LocalPlayer } from "./player/LocalPlayer";
-import { Box } from "./meshes/Box";
+import { Box } from "./lib/meshes/Box";
 import { Dummy } from "./player/Dummy";
 
 export function game(

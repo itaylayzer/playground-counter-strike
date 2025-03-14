@@ -23,7 +23,19 @@ function setupScene() {
 	Global.renderer.shadowMap.enabled = true;
 	Global.container.appendChild(Global.renderer.domElement);
 	Global.scene = new THREE.Scene();
-	Global.scene.background = new THREE.Color("#fff");
+
+	const pmremGenerator = new THREE.PMREMGenerator(Global.renderer);
+
+	const envMap = pmremGenerator.fromEquirectangular(
+		Global.assets.textures.txt_skybox
+	).texture;
+
+	// Set the environment map as the background
+	Global.scene.background = envMap;
+
+	// Optionally, set it as an environment map for reflective materials
+	Global.scene.environment = envMap;
+
 	// Global.scene.fog = new THREE.Fog(Global.scene.background, 10, 20);
 
 	Global.lod = new THREE.LOD();

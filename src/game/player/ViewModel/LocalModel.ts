@@ -57,7 +57,8 @@ export class LocalModel extends PlayerModel {
 		// model.scale.x *= -1;;
 
 		super.add(model);
-		skinned.skeleton.getBoneByName("GunA")?.attach(rifle);
+		const gunA = skinned.skeleton.getBoneByName("GunA")!;
+		gunA.attach(rifle);
 		rifle.position.set(0, -0.2, 0);
 		rifle.rotation.set(0, Math.PI / 2, 0);
 		// super.add(rifle);
@@ -149,8 +150,13 @@ export class LocalModel extends PlayerModel {
 
 		let isShooting = false,
 			isThrowing = false,
-			isReloading = false;
+			isReloading = false,
+			justTrowhed = false;
 
+		const bombMesh = Global.assets.fbx.bomb.clone();
+		bombMesh.scale.multiplyScalar(0.00035 * 0.33);
+		gunA.attach(bombMesh);
+		bombMesh.position.set(0, 0, 0);
 		const ammoMesh = rifle.children[0].children[0];
 		const ammoData = [
 			ammoMesh.position.clone(),
@@ -295,7 +301,6 @@ export class LocalModel extends PlayerModel {
 							!isReloading
 						) {
 							isReloading = true;
-							// TODO: attach to GunA
 
 							const gunB =
 								skinned.skeleton.getBoneByName("GunB")!;
@@ -324,7 +329,7 @@ export class LocalModel extends PlayerModel {
 					aim_to_toss: () => {
 						const r = player.keyboard.isKeyDown(70);
 
-						r && (isThrowing = true);
+						r && ((isThrowing = true), (justTrowhed = false));
 						return r;
 					},
 					toss_to_aim: (clip) => {
@@ -332,9 +337,17 @@ export class LocalModel extends PlayerModel {
 							clip.getTime() >=
 							clip.getDuration() - Global.deltaTime;
 
-						if (isThrowing)
+						if (isThrowing) {
 							rifle.visible =
 								clip.getTime() < 0.5 || clip.getTime() > 2;
+							bombMesh.visible = !rifle.visible;
+
+							if (clip.getTime() > 1.75 && !justTrowhed) {
+								console.log("now");
+								player.throwController.throw(gunA);
+								justTrowhed = true;
+							}
+						}
 
 						r && (isThrowing = false);
 

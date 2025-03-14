@@ -6,10 +6,12 @@ import { IKeyboardController } from "../controllers/IKeyboardController";
 import { PlayerModel } from "./ViewModel/PlayerModel";
 import { ShooterController } from "../controllers/ShooterController";
 import { BoneController } from "../controllers/BoneController";
+import { ThrowController } from "../controllers/ThrowController";
 // import { BoneController } from "../controllers/BoneController";
 export class Player extends Updateable {
 	public body: RAPIER.RigidBody;
 	public model: PlayerModel;
+	public throwController: ThrowController;
 	constructor(
 		public keyboard: IKeyboardController,
 		ModelClass: new (player: Player) => PlayerModel
@@ -51,6 +53,7 @@ export class Player extends Updateable {
 		Global.debugMode && Global.debugRenderer.update();
 
 		this.model = new ModelClass(this);
+		this.throwController = new ThrowController();
 		const movement = new MovementController(this);
 		const shooter = new ShooterController(this, 10, 100);
 		const boneController = new BoneController(this);

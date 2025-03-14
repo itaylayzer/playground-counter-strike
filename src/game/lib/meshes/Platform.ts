@@ -1,6 +1,6 @@
 import RAPIER from "@dimforge/rapier3d-compat";
 import * as THREE from "three";
-import { Global } from "../store/Global";
+import { Global } from "../../store/Global";
 
 export class Platform {
 	public body: RAPIER.RigidBody;

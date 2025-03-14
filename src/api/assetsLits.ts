@@ -17,5 +17,7 @@ export default {
 	txt_circle: "textures/circle.png",
 	txt_smoke: "textures/smoke.png",
 	hit_projectile: "textures/hit_projectile.png",
+	txt_skybox: "textures/skybox2.png",
 	died: "fbx/animations/pack/death from front headshot.fbx",
+	bomb: "fbx/models/fbomb.fbx",
 };
